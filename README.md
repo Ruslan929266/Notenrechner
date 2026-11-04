@@ -1,6 +1,8 @@
 # 📊 Notenrechner
 
-Ein einfacher Notenrechner als **einzelne HTML-Datei**. Man trägt seine Prüfungsnoten pro Fach ein und sieht sofort Durchschnitte, Zeugnisnoten, Mangelpunkte und den Notenverlauf in einem Diagramm. Es braucht keine Installation, keinen Server und kein Konto.
+Ein Notenrechner als **einzelne HTML-Datei**. Du trägst deine Prüfungsnoten pro Fach ein und siehst sofort Durchschnitte, Zeugnisnoten, Mangelpunkte und den Notenverlauf in einem Diagramm. Es braucht keine Installation, keinen Server und kein Konto.
+
+Fächer, Durchschnitte (Gruppen von Fächern) und die Anzahl Prüfungen legst du selbst fest. Deine Einstellungen kannst du als **Presets** in Dateien speichern und später wieder laden.
 
 ---
 
@@ -11,10 +13,9 @@ Ein einfacher Notenrechner als **einzelne HTML-Datei**. Man trägt seine Prüfun
 - [Bedienung](#bedienung)
 - [Berechnungen](#berechnungen)
 - [Kompensationen](#kompensationen)
-- [Fächer und Gruppen anpassen](#fächer-und-gruppen-anpassen)
+- [Presets](#presets)
 - [Datenspeicherung und Datenschutz](#datenspeicherung-und-datenschutz)
 - [Technische Details](#technische-details)
-- [Projektstruktur](#projektstruktur)
 - [Veröffentlichen mit GitHub Pages](#veröffentlichen-mit-github-pages)
 - [Lizenz](#lizenz)
 
@@ -22,191 +23,140 @@ Ein einfacher Notenrechner als **einzelne HTML-Datei**. Man trägt seine Prüfun
 
 ## Funktionen
 
-- **Noteneingabe** für bis zu 4 Prüfungen pro Fach, mit einer Nachkommastelle
-- **Liniendiagramm** über Prüfung 1 bis Prüfung 4, mit
-  - einzelnen Fächern oder mehreren Fächern gleichzeitig,
-  - Schnellauswahl für **Alle**, **FMZ** und **BBZW**,
-  - einer gestrichelten roten Linie bei **4.0** (Grenze zwischen genügend und ungenügend),
-  - den Durchschnitten jedes Fachs, fett und in der Höhe der letzten Note direkt neben dem Diagramm
-- **Prüfungen ohne Note** werden nicht angezeigt
-- **Durchschnitt pro Fach**, grün (genügend) oder rot (ungenügend)
-- **Zeugnisnote**, auf halbe Noten gerundet und farbig markiert
-- **Mangelpunkte** pro Fach und als Total für die FMZ-Fächer, rot bei Mangelpunkten, sonst grün
-- **Kennzahlen oben**: Durchschnitt FMZ, Durchschnitt BBZW, Durchschnitt aller Fächer, Total Mangelpunkte
-- **Kompensationen**: Ein aufklappbarer Bereich zeigt, ob ungenügende FMZ-Fächer durch andere Fächer ausgeglichen werden können
+- **Freie Fächer**: Fächer hinzufügen und löschen, jedes Fach hat eine eigene Farbe, die nur einmal vorkommt
+- **Freie Durchschnitte**: beliebig viele Durchschnitte anlegen, umbenennen, mit Fächern verknüpfen und löschen
+- **Anzahl Prüfungen einstellbar** (1 bis 10)
+- **Liniendiagramm** des Notenverlaufs mit gestrichelter roter Linie bei 4.0
+- **Zeugnisnote** (auf halbe Noten gerundet) und **Mangelpunkte** pro Fach, farbig markiert
+- **Kompensationen**: Prüfung, ob ungenügende Fächer durch andere Fächer ausgeglichen werden können
+- **Presets**: Einstellungen als Datei speichern, laden und aus einem ganzen Ordner auswählen
 - **Automatisches Speichern** im Browser
 - **Heller und dunkler Modus**, passend zur Systemeinstellung
-- Geeignet für **Desktop und Smartphone**
+- Geeignet für **Computer und Smartphone**
 
 ---
 
 ## Schnellstart
 
-1. Datei `notenrechner.html` herunterladen oder das Repository klonen:
+1. Die Datei `notenrechner.html` herunterladen oder das Repository klonen:
    ```bash
    git clone https://github.com/<dein-benutzername>/<dein-repository>.git
-   cd <dein-repository>
    ```
-2. `notenrechner.html` mit einem Doppelklick im Browser öffnen.
-3. Noten eintragen. Fertig.
+2. `notenrechner.html` im Browser öffnen.
+3. Noten eintragen.
 
-> **Hinweis:** Für das Diagramm wird [Chart.js](https://www.chartjs.org/) von cdnjs geladen. Beim ersten Öffnen ist deshalb eine Internetverbindung nötig.
+> Für das Diagramm wird [Chart.js](https://www.chartjs.org/) von cdnjs geladen. Beim ersten Öffnen ist deshalb eine Internetverbindung nötig.
 
 ---
 
 ## Bedienung
 
+### Durchschnitte
+
+Oben stehen die Durchschnitte als Kacheln. Jede Kachel zeigt den Namen, den Durchschnitt und die Mangelpunkte.
+
+| Aktion | So geht es |
+|---|---|
+| Hinzufügen | Auf **+ Durchschnitt hinzufügen** klicken. Im Fenster Namen eingeben und die passenden Fächer ankreuzen |
+| Bearbeiten | Auf die **drei Punkte (⋮)** in der Kachel klicken. Dort lassen sich Name und verknüpfte Fächer ändern |
+| Löschen | Auf das **✕** in der Kachel klicken und zur Bestätigung ein zweites Mal klicken |
+
 ### Diagramm
 
-Über dem Diagramm stehen Auswahlknöpfe:
+Über dem Diagramm stehen Auswahlknöpfe für die Durchschnitte und für jedes einzelne Fach.
 
-| Knopf | Wirkung |
-|---|---|
-| **Alle** | Zeigt alle Fächer, ein zweiter Klick blendet alle aus |
-| **FMZ** | Zeigt nur die FMZ-Fächer |
-| **BBZW** | Zeigt nur die BBZW-Fächer |
-| **Einzelnes Fach** | Fach ein- oder ausblenden, beliebig kombinierbar |
+- **Ein Fach anklicken** zeigt die einzelnen Noten dieses Fachs, also den Verlauf über alle Prüfungen.
+- **Mehrere Fächer vergleichen**: Aktiviere diese Option, dann kannst du mehrere Fächer gleichzeitig anklicken. Das Diagramm zeigt jedes Fach mit seiner Farbe und zusätzlich die gestrichelte **Gesamtbewertung** über alle gewählten Fächer.
+- **Einen Durchschnitt anklicken** wählt alle zugehörigen Fächer aus.
+- Neben dem Diagramm steht der Durchschnitt jedes Fachs, fett und auf der Höhe der letzten Note.
+- Prüfungen ohne Note werden nicht angezeigt.
 
-- Ist **ein einzelnes Fach** gewählt, ist die Linie grün und in der Legende als «Gesamtbewertung» beschriftet.
-- Sind **mehrere Fächer** gewählt, hat jedes Fach eine eigene Farbe und neben dem Diagramm steht das Fachkürzel vor dem Durchschnitt.
-- Der Satz «Aktueller Durchschnitt» zeigt den Durchschnitt des gewählten Fachs, bei mehreren Fächern den Durchschnitt über diese Fächer.
-- Die **rote gestrichelte Linie bei 4.0** zeigt auf einen Blick, ob eine Note genügend oder ungenügend ist.
+### Noten und Prüfungen
 
-### Tabelle
+In der Tabelle trägst du die Noten (1 bis 6) pro Prüfung ein. Eingaben werden auf **eine Nachkommastelle** gerundet. Mit **−** und **+** bei «Prüfungen» änderst du die Anzahl der Prüfungen. Unter der Tabelle fügst du neue Fächer hinzu, das **✕** in der Zeile löscht ein Fach.
 
-Pro Fach gibt es vier Felder für **Prüfung 1 bis 4**. Das Diagramm, die Durchschnitte und alle Kennzahlen aktualisieren sich sofort bei jeder Eingabe.
+### Zurücksetzen
 
-- Erlaubt sind Noten von 1 bis 6.
-- Eingaben werden auf **eine Nachkommastelle** gerundet (4.39 wird zu 4.4).
-- Ein leeres Feld bedeutet, dass die Prüfung noch nicht geschrieben wurde.
+Der Knopf **Zurücksetzen** fragt nach, was gelöscht werden soll:
 
-Mit **Zurücksetzen** unter der Tabelle stellst du die Startwerte wieder her.
+- **Nur Noten löschen**: Fächer und Durchschnitte bleiben
+- **Alles löschen**: auch Fächer und Durchschnitte werden entfernt
 
 ---
 
 ## Berechnungen
 
-Alle Werte werden direkt im Browser berechnet.
+Alle Werte werden im Browser berechnet.
 
-### Durchschnitt
+**Durchschnitt eines Fachs**: Mittelwert aller eingetragenen Noten, mit einer Nachkommastelle. Ab 4.0 grün, darunter rot.
 
-Mittelwert aller eingetragenen Noten eines Fachs, mit einer Nachkommastelle angezeigt. Ab **4.0** ist er grün, darunter rot.
+**Zeugnisnote**: der Durchschnitt, auf eine halbe Note gerundet (4.3 ergibt 4.5, 4.2 ergibt 4.0).
 
-### Zeugnisnote
+**Mangelpunkte eines Fachs**: `4 − Durchschnitt` (auf eine Nachkommastelle). Ein Wert über 0 bedeutet Mangelpunkte und ist rot, sonst grün.
 
-Der Durchschnitt wird auf eine **halbe Note** gerundet:
+**Durchschnitt einer Kachel**: Mittelwert der Fachdurchschnitte der verknüpften Fächer. Fächer ohne Note zählen nicht mit.
 
-| Durchschnitt | Zeugnisnote |
-|---|---|
-| 4.2 | 4.0 |
-| 4.3 | 4.5 |
-| 4.7 | 4.5 |
-| 4.8 | 5.0 |
-
-### Mangelpunkte pro Fach
-
-```
-Mangelpunkte = 4 − Durchschnitt   (auf eine Nachkommastelle gerundet)
-```
-
-Ein positiver Wert (Durchschnitt unter 4) bedeutet Mangelpunkte und wird **rot** angezeigt. Ein Wert von 0 oder weniger wird **grün** angezeigt. Beispiel: Durchschnitt 3.2 ergibt 0.8 Mangelpunkte.
-
-### Total Mangelpunkte
-
-Das Total gilt nur für die **FMZ-Fächer**. Es zählt nur, wer eine **ungenügende Zeugnisnote** (unter 4.0) hat:
-
-```
-Total = Summe über alle FMZ-Fächer mit Zeugnisnote < 4 von (4 − Zeugnisnote)
-```
-
-Beispiel: Zeugnisnote 3.5 ergibt 0.5 Mangelpunkte. Gibt es keine ungenügenden FMZ-Fächer, ist das Total 0.0 und grün.
-
-> Das Total ist bewusst nicht die Summe der Spalte «Mangelpunkte» in der Tabelle. Die Tabelle rechnet mit dem gerundeten Durchschnitt, das Total mit der Zeugnisnote.
-
-### Durchschnitt FMZ, BBZW und alle Fächer
-
-Mittelwert der **Fachdurchschnitte** der jeweiligen Gruppe. Fächer ohne Note zählen nicht mit.
+**Mangelpunkte einer Kachel**: Summe von `4 − Zeugnisnote` über alle verknüpften Fächer, deren Zeugnisnote unter 4.0 liegt. Gibt es keine ungenügenden Fächer, ist der Wert 0.0 und grün.
 
 ---
 
 ## Kompensationen
 
-Unter dem Diagramm gibt es den Bereich **«Kompensationen anzeigen»**. Er betrifft nur die **FMZ-Fächer** und rechnet mit den Zeugnisnoten.
+Unter dem Diagramm gibt es den aufklappbaren Bereich **Kompensationen anzeigen**.
 
-Für jedes ungenügende FMZ-Fach steht dort:
+1. Wähle den **Durchschnitt**, dessen Fächer geprüft werden sollen, oder «Alle Fächer».
+2. Wähle durch Anklicken, welche **Fächer** davon in die Prüfung einbezogen werden.
 
-- die Zeugnisnote und der **Mangel** in Punkten (Zeugnisnote 3.5 hat 0.5 Punkte Mangel),
-- alle FMZ-Fächer mit einer Note über 4 mit ihren **Pluspunkten** (zum Beispiel GP 4.5 hat +0.5),
-- ob ein Fach den Mangel **allein kompensiert** (Pluspunkte ≥ Mangel) oder dafür nicht reicht.
+Für jedes ungenügende Fach zeigt die Seite den Mangel (Zeugnisnote 3.5 hat 0.5 Punkte Mangel) und alle Fächer über 4 mit ihren Pluspunkten (Zeugnisnote 4.5 hat +0.5). Es steht dabei, ob ein Fach den Mangel allein kompensiert. Am Ende zeigt eine Gesamtaussage, ob die Pluspunkte aller geprüften Fächer für alle Mängel reichen.
 
-Am Ende steht eine Gesamtaussage: Mangel total gegenüber Pluspunkten total, also ob sich alle Mängel zusammen ausgleichen lassen.
-
-> Die Gesamtaussage geht davon aus, dass mehrere Fächer gemeinsam kompensieren dürfen. Gelten an deiner Schule andere Regeln, muss die Funktion `komp()` angepasst werden.
+> Die Gesamtaussage geht davon aus, dass mehrere Fächer gemeinsam kompensieren dürfen. Gelten andere Regeln, muss die Funktion `komp()` angepasst werden.
 
 ---
 
-## Fächer und Gruppen anpassen
+## Presets
 
-Alle Einstellungen stehen am Anfang des Skripts in `notenrechner.html`:
+Ein Preset enthält Fächer, Durchschnitte und die Anzahl Prüfungen, auf Wunsch auch die Noten. **Jedes Preset hat einen Namen.** Im Bereich **Presets** unten auf der Seite gibt es:
 
-```js
-const FMZ  = ["DE","EN","FR","FRW","GP","MA","WR"];
-const BBZW = ["IPT-1","M117","M122","M162","M319"];
-const INIT = { DE:[3.9,4.7], EN:[5.1], /* ... */ SP:[4], U187:[], WR:[5] };
-```
-
-| Konstante | Bedeutung |
+| Knopf | Funktion |
 |---|---|
-| `FMZ` | Fächer der Gruppe FMZ (Kennzahlen, Total Mangelpunkte, Kompensationen) |
-| `BBZW` | Fächer der Gruppe BBZW |
-| `INIT` | Alle Fächer mit den Startnoten (leere Liste = noch keine Note) |
+| **Aktuelles Preset speichern** | Fragt nach einem Namen und ob die Noten mitgespeichert werden. Das Preset kommt in die Liste und kann zusätzlich als Datei gespeichert werden |
+| **Datei laden** | Lädt eine oder mehrere Preset-Dateien (`.json`) in die Liste |
+| **Ordner wählen** | Liest alle Preset-Dateien eines ganzen Ordners ein, danach wählst du aus der Liste |
+| **Laden** (in der Liste) | Wendet ein Preset an und ersetzt dabei Fächer und Durchschnitte |
+| **Als Datei** (in der Liste) | Speichert ein Preset aus der Liste als Datei |
+| **✕** (in der Liste) | Entfernt ein Preset aus der Liste (die Datei bleibt erhalten) |
 
-Fächer, die in `INIT` stehen, aber in keiner Gruppe (hier **SP** und **U187**), erscheinen in Tabelle und Diagramm und zählen beim Durchschnitt aller Fächer mit, gehören aber nicht zu FMZ oder BBZW.
-
-Nach Änderungen an den Fächern kann es nötig sein, den gespeicherten Stand zu löschen (Zurücksetzen-Knopf oder Browserdaten der Seite löschen).
+Preset-Dateien sind lesbares JSON mit dem Feld `"format": "notenrechner-preset"`. Dateien ohne dieses Feld werden beim Import übersprungen.
 
 ---
 
 ## Datenspeicherung und Datenschutz
 
-- Die Noten werden im **`localStorage` des Browsers** unter dem Schlüssel `noten_v1` gespeichert.
-- Es werden **keine Daten an einen Server gesendet**. Alles bleibt auf deinem Gerät.
-- Die Daten gelten pro Gerät und Browser. Ein anderer Browser oder ein anderes Gerät startet wieder mit den Startwerten.
-- Löschst du die Browserdaten oder nutzt den privaten Modus, gehen die Eingaben verloren.
+- Noten, Fächer, Durchschnitte und die Preset-Liste liegen im **`localStorage` des Browsers**.
+- Es werden **keine Daten an einen Server gesendet.**
+- Die Daten gelten pro Gerät und Browser. Beim Löschen der Browserdaten gehen sie verloren. Sichere wichtige Einstellungen deshalb als Preset-Datei.
 
 ---
 
 ## Technische Details
 
-- Reines **HTML, CSS und JavaScript** in einer Datei, ohne Build-Schritt
-- Diagramm mit **Chart.js 4.4.1** (UMD-Build, geladen von `cdnjs.cloudflare.com`)
-- Eigenes Chart.js-Plugin (`endLabels`), das die Durchschnitte neben dem Diagramm zeichnet und sich überlappende Beschriftungen auseinanderschiebt
-- Farben als **CSS-Variablen**, mit eigenen Werten für den dunklen Modus (`prefers-color-scheme`)
-- Responsive Layout, die Tabelle scrollt auf schmalen Bildschirmen seitlich
-- Unterstützt aktuelle Versionen von Chrome, Firefox, Safari und Edge
-
----
-
-## Projektstruktur
-
-```
-.
-├── notenrechner.html   # die komplette Anwendung
-├── Noten.xlsx          # optional: Excel-Vorlage mit den ursprünglichen Daten
-└── README.md
-```
+- Reines HTML, CSS und JavaScript in einer Datei, ohne Build-Schritt
+- Diagramm mit Chart.js 4.4.1 (von `cdnjs.cloudflare.com`) und einem eigenen Plugin für die Durchschnitte neben dem Diagramm
+- Fächerfarben werden mit dem Goldenen Winkel erzeugt, damit sich keine Farbe wiederholt
+- Farben als CSS-Variablen, mit eigenen Werten für den dunklen Modus
+- Unterstützt aktuelle Versionen von Chrome, Firefox, Safari und Edge. Die Ordnerauswahl für Presets braucht einen Browser mit Unterstützung für `webkitdirectory`
 
 ---
 
 ## Veröffentlichen mit GitHub Pages
 
-1. Datei `notenrechner.html` in `index.html` umbenennen (oder im Repository so ablegen).
-2. Im Repository auf **Settings → Pages** gehen.
-3. Bei **Source** den Branch (zum Beispiel `main`) und den Ordner `/ (root)` auswählen und speichern.
-4. Nach kurzer Zeit ist die Seite unter `https://<dein-benutzername>.github.io/<dein-repository>/` erreichbar.
+1. `notenrechner.html` in `index.html` umbenennen.
+2. Im Repository **Settings → Pages** öffnen.
+3. Bei **Source** den Branch (zum Beispiel `main`) und den Ordner `/ (root)` wählen und speichern.
+4. Die Seite ist danach unter `https://<dein-benutzername>.github.io/<dein-repository>/` erreichbar.
 
 ---
 
 ## Lizenz
 
-Noch keine Lizenz festgelegt. Füge eine `LICENSE`-Datei hinzu (zum Beispiel MIT), wenn andere das Projekt verwenden oder weiterentwickeln dürfen.
+Noch keine Lizenz festgelegt. Füge eine `LICENSE`-Datei hinzu (zum Beispiel MIT), wenn andere das Projekt verwenden dürfen.
