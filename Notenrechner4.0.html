@@ -210,10 +210,9 @@ function draw(){
   ds.push({label:"Genügend / ungenügend (4.0)",isLimit:true,data:labels.map(()=>4),borderColor:"rgba(229,57,53,.45)",borderWidth:1.5,borderDash:[8,6],pointRadius:0,pointHoverRadius:0});
   const tc=css("--mu"),gc=css("--grid");if(chart)chart.destroy();
   chart=new Chart($("cv"),{type:"line",data:{labels,datasets:ds},plugins:[endLabels],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{right:one?72:118}},
-    scales:{y:{min:0.5,max:6.5,ticks:{stepSize:1,color:tc,callback:v=>Number.isInteger(v)?v:""},grid:{color:gc}},x:{ticks:{color:tc},grid:{color:gc}}},plugins:{legend:{labels:{color:tc}}}}});
+    scales:{y:{min:0.5,max:6.5,ticks:{stepSize:0.5,color:c=>Number.isInteger(c.tick.value)?tc:tc+"aa",callback:v=>v<1||v>6?"":Number.isInteger(v)?v:v.toFixed(1)},grid:{color:c=>Number.isInteger(c.tick.value)?gc:gc+"80"}},x:{ticks:{color:tc},grid:{color:gc}}},plugins:{legend:{labels:{color:tc}}}}});
   const a=one?avgS(sel[0]):mean(sel.map(avgS));
   $("avgTxt").innerHTML="Aktueller Durchschnitt: <b class=\""+cl(a)+"\">"+f1(a)+"</b>"}
-
 /* ---------- Kompensation ---------- */
 function komp(){
   const el=$("komp"),ka=S.avgs.find(a=>a.id===S.komp.avg);
