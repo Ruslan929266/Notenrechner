@@ -1,63 +1,68 @@
 <!DOCTYPE html>
-<html lang="de"><head><meta charset="utf-8"><title>Notenrechner</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
- --bg:#f3f4f6;--card:#fff;--tx:#1d2125;--mu:#6b7280;--bd:#dfe2e6;--ac:#2e7d5b;--ok:#2e9a2e;--bad:#e53935;--grid:#e5e7eb;--sh:0 1px 3px rgba(0,0,0,.08)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#111315;--card:#1b1e22;--tx:#e8eaed;--mu:#9aa0a6;--bd:#33373d;--grid:#2d3036;--ok:#4cc24c;--bad:#ff6b66;--sh:none}}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding:16px;max-width:1200px;margin-inline:auto}
-h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 10px}h3{margin:0 0 10px}
-.sub{color:var(--mu);margin:0 0 16px;font-size:.9rem}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:var(--sh)}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.hint{color:var(--mu);font-size:.8rem;margin:8px 0}
-.ok{color:var(--ok)}.bad{color:var(--bad)}
-button{font:inherit;color:var(--tx);cursor:pointer}
-.b{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:.88rem}
-.b:hover{border-color:var(--ac)}.b.pri{background:var(--ac);border-color:var(--ac);color:#fff}.b.dan{color:var(--bad);border-color:var(--bad)}
-.ib{background:none;border:none;color:var(--mu);width:26px;height:26px;border-radius:6px;font-size:.95rem;padding:0}
-.ib:hover{background:var(--bg)}.ib.x{color:var(--bad)}.ib.ask{background:var(--bad);color:#fff;width:auto;padding:0 8px;font-size:.75rem}
-input[type=text],input[type=number],select{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font:inherit}
-input[type=checkbox]{accent-color:var(--ac)}
-/* Durchschnitte */
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:12px}
-.t{position:relative;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;background:var(--bg)}
-.t span{display:block;color:var(--mu);font-size:.8rem;font-weight:600;padding-right:56px}
-.t b{display:block;font-size:1.8rem;margin:2px 0}.t small{color:var(--mu)}
-.tb{position:absolute;top:6px;right:6px;display:flex;gap:2px}
-/* Diagramm */
-.avg{text-align:center;font-style:italic;margin:0 0 8px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.chip{border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:4px 12px;font-size:.85rem}
-.chip.on{background:var(--c,var(--ac));border-color:var(--c,var(--ac));color:#fff}
-.chip.grp{font-weight:600;border-style:dashed}.chip.grp.on{background:var(--ac);border-color:var(--ac)}
-.ck:has(input:checked){background:var(--ac);border-color:var(--ac);color:#fff}
-.sw{font-size:.85rem;color:var(--mu);display:inline-flex;gap:6px;align-items:center;margin-bottom:10px}
-.chart{position:relative;height:400px}
-details{margin-top:14px;border-top:1px solid var(--bd);padding-top:12px}summary{cursor:pointer;font-weight:600}
-.kc{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:10px}.kc ul{margin:6px 0 0;padding-left:18px}
-.verd{margin-top:12px;font-weight:700}
-/* Tabelle */
-.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%}
-th,td{padding:6px;text-align:center;border-bottom:1px solid var(--bd);font-size:.9rem;white-space:nowrap}
-th{color:var(--mu);font-weight:600}td.nm,th.nm{text-align:left;font-weight:600}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-td input{width:64px;text-align:center}td.a,td.z{font-weight:700}
-.ex{display:inline-flex;align-items:center;gap:8px}
-#newN{width:200px}
-/* Presets */
-.pl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)}
-.pl small{color:var(--mu)}
-/* Popup */
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
-#modal.open{display:flex}
-.md{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;width:100%;max-width:440px;max-height:85vh;overflow:auto}
-.md label.fl{display:block;font-size:.85rem;color:var(--mu)}.md label.fl input{display:block;width:100%;margin-top:4px}
-.mbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
-</style></head><body>
+<html lang="de">
+  <head>
+    <meta charset="utf-8"><title>Notenrechner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link rel="shortcut icon" href="Screenshot 2026-11-05 111538.png" type="image/x-icon" />
+    <style>
+      :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+      --bg:#f3f4f6;--card:#fff;--tx:#1d2125;--mu:#6b7280;--bd:#dfe2e6;--ac:#2e7d5b;--ok:#2e9a2e;--bad:#e53935;--grid:#e5e7eb;--sh:0 1px 3px rgba(0,0,0,.08)}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#111315;--card:#1b1e22;--tx:#e8eaed;--mu:#9aa0a6;--bd:#33373d;--grid:#2d3036;--ok:#4cc24c;--bad:#ff6b66;--sh:none}}
+      html{scroll-padding-top:env(safe-area-inset-top,0px)}
+      *{box-sizing:border-box}
+      body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding:16px;max-width:1200px;margin-inline:auto}
+      h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 10px}h3{margin:0 0 10px}
+      .sub{color:var(--mu);margin:0 0 16px;font-size:.9rem}
+      .card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:var(--sh)}
+      .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+      .hint{color:var(--mu);font-size:.8rem;margin:8px 0}
+      .ok{color:var(--ok)}.bad{color:var(--bad)}
+      button{font:inherit;color:var(--tx);cursor:pointer}
+      .b{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:.88rem}
+      .b:hover{border-color:var(--ac)}.b.pri{background:var(--ac);border-color:var(--ac);color:#fff}.b.dan{color:var(--bad);border-color:var(--bad)}
+      .ib{background:none;border:none;color:var(--mu);width:26px;height:26px;border-radius:6px;font-size:.95rem;padding:0}
+      .ib:hover{background:var(--bg)}.ib.x{color:var(--bad)}.ib.ask{background:var(--bad);color:#fff;width:auto;padding:0 8px;font-size:.75rem}
+      input[type=text],input[type=number],select{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font:inherit}
+      input[type=checkbox]{accent-color:var(--ac)}
+      /* Durchschnitte */
+      .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:12px}
+      .t{position:relative;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;background:var(--bg)}
+      .t span{display:block;color:var(--mu);font-size:.8rem;font-weight:600;padding-right:56px}
+      .t b{display:block;font-size:1.8rem;margin:2px 0}.t small{color:var(--mu)}
+      .tb{position:absolute;top:6px;right:6px;display:flex;gap:2px}
+      /* Diagramm */
+      .avg{text-align:center;font-style:italic;margin:0 0 8px}
+      .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+      .chip{border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:4px 12px;font-size:.85rem}
+      .chip.on{background:var(--c,var(--ac));border-color:var(--c,var(--ac));color:#fff}
+      .chip.grp{font-weight:600;border-style:dashed}.chip.grp.on{background:var(--ac);border-color:var(--ac)}
+      .ck:has(input:checked){background:var(--ac);border-color:var(--ac);color:#fff}
+      .sw{font-size:.85rem;color:var(--mu);display:inline-flex;gap:6px;align-items:center;margin-bottom:10px}
+      .chart{position:relative;height:400px}
+      details{margin-top:14px;border-top:1px solid var(--bd);padding-top:12px}summary{cursor:pointer;font-weight:600}
+      .kc{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:10px}.kc ul{margin:6px 0 0;padding-left:18px}
+      .verd{margin-top:12px;font-weight:700}
+      /* Tabelle */
+      .scroll{overflow-x:auto}table{border-collapse:collapse;width:100%}
+      th,td{padding:6px;text-align:center;border-bottom:1px solid var(--bd);font-size:.9rem;white-space:nowrap}
+      th{color:var(--mu);font-weight:600}td.nm,th.nm{text-align:left;font-weight:600}
+      .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+      td input{width:64px;text-align:center}td.a,td.z{font-weight:700}
+      .ex{display:inline-flex;align-items:center;gap:8px}
+      #newN{width:200px}
+      /* Presets */
+      .pl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)}
+      .pl small{color:var(--mu)}
+      /* Popup */
+      #modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+      #modal.open{display:flex}
+      .md{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;width:100%;max-width:440px;max-height:85vh;overflow:auto}
+      .md label.fl{display:block;font-size:.85rem;color:var(--mu)}.md label.fl input{display:block;width:100%;margin-top:4px}
+      .mbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
+    </style>
+  </head>
+<body>
 <h1>Notenrechner</h1>
 <p class="sub">Noten eintragen, Durchschnitte und Zeugnisnoten ansehen, Kompensationen prüfen.</p>
 
