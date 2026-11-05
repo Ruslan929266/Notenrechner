@@ -76,7 +76,8 @@
   <p class="avg" id="avgTxt"></p>
   <div class="chips" id="chips"></div>
   <label class="sw" style="margin-right:16px"><input type="checkbox" id="multi"> Mehrere Fächer gleichzeitig vergleichen</label>
-  <label class="sw"><input type="checkbox" id="tot"> Gesamtbewertung anzeigen</label>
+  <label class="sw" style="margin-right:16px"><input type="checkbox" id="tot"> Gesamtbewertung anzeigen</label>
+  <label class="sw"><input type="checkbox" id="lim"> Linie bei 4.0 anzeigen</label>
   <div class="chart"><canvas id="cv"></canvas></div>
   <details><summary>Kompensationen anzeigen</summary><div id="komp"></div></details>
 </div>
@@ -207,12 +208,13 @@ function chips(){
     S.view.sel=S.view.multi?(S.view.sel.includes(s.id)?S.view.sel.filter(x=>x!==s.id):[...S.view.sel,s.id]):[s.id];upd()}))}
 $("multi").onchange=e=>{S.view.multi=e.target.checked;upd()};
 $("tot").onchange=e=>{S.view.total=e.target.checked;upd()};
+$("lim").onchange=e=>{S.view.limit=e.target.checked;upd()};
 function draw(){
   const labels=Array.from({length:S.exams},(_,i)=>"Prüfung "+(i+1));
   const sel=S.subjects.filter(s=>S.view.sel.includes(s.id)&&avgS(s)!==null),one=sel.length===1;
   const ds=sel.map(s=>({label:one?"Gesamtbewertung":s.name,name:s.name,avg:avgS(s),data:gr(s),borderColor:s.color,backgroundColor:s.color+"22",borderWidth:3,pointRadius:3,pointBackgroundColor:"#fff",pointBorderColor:s.color,spanGaps:true,tension:0}));
   if(sel.length>1&&S.view.total!==false)ds.push({label:"Gesamtbewertung",name:"Gesamt",avg:mean(sel.map(avgS)),data:labels.map((_,i)=>mean(sel.map(s=>gv(s,i)).filter(v=>v!==null))),borderColor:css("--tx"),borderWidth:3,borderDash:[2,5],pointRadius:3,spanGaps:true,tension:0});
-  ds.push({label:"Genügend / ungenügend (4.0)",isLimit:true,data:labels.map(()=>4),borderColor:"rgba(229,57,53,.45)",borderWidth:1.5,borderDash:[8,6],pointRadius:0,pointHoverRadius:0});
+  if(S.view.limit!==false) ds.push({label:"Genügend / ungenügend (4.0)",isLimit:true,data:labels.map(()=>4),borderColor:"rgba(229,57,53,.45)",borderWidth:1.5,borderDash:[8,6],pointRadius:0,pointHoverRadius:0});
   const tc=css("--mu"),gc=css("--grid");if(chart)chart.destroy();
   chart=new Chart($("cv"),{type:"line",data:{labels,datasets:ds},plugins:[endLabels],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{right:one?72:118}},
     scales:{y:{min:0.5,max:6.5,ticks:{stepSize:0.5,color:c=>Number.isInteger(c.tick.value)?tc:tc+"aa",callback:v=>v<1||v>6?"":Number.isInteger(v)?v:v.toFixed(1)},grid:{color:c=>Number.isInteger(c.tick.value)?gc:gc+"80"}},x:{ticks:{color:tc},grid:{color:gc}}},plugins:{legend:{labels:{color:tc}}}}});
