@@ -32,7 +32,9 @@
       .t b{display:block;font-size:1.8rem;margin:2px 0}.t small{color:var(--mu)}
       .tb{position:absolute;top:6px;right:6px;display:flex;gap:2px}
       /* Diagramm */
-      .avg{text-align:center;font-style:italic;margin:0 0 8px}
+      .avg{
+      .top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:8px}.top .avg,.top .sw{margin:0}
+      text-align:center;font-style:italic;margin:0 0 8px}
       .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
       .chip{border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:4px 12px;font-size:.85rem}
       .chip.on{background:var(--c,var(--ac));border-color:var(--c,var(--ac));color:#fff}
@@ -73,7 +75,16 @@
 </div>
 
 <div class="card">
+  <div class="top">
+    <label class="sw">Diagrammtyp: <select id="ctype">
+      <option value="line">Linien</option><option value="bar">Balken
+      </option>
+      <option value="dots">Punkte</option>
+    </select>
+  </label>
   <p class="avg" id="avgTxt"></p>
+  <span>
+  </span></div>
   <div class="chips" id="chips"></div>
   <label class="sw" style="margin-right:16px"><input type="checkbox" id="multi"> Mehrere Fächer gleichzeitig vergleichen</label>
   <label class="sw" style="margin-right:16px"><input type="checkbox" id="tot"> Gesamtbewertung anzeigen</label>
@@ -200,6 +211,7 @@ const endLabels={id:"endLabels",afterDatasetsDraw(c){
   ctx.restore()}};
 function chips(){
   const c=$("chips");c.innerHTML="";$("multi").checked=S.view.multi;$("tot").checked=S.view.total!==false;
+  $("ctype").value=S.view.type||"line";
   const add=(t,on,col,fn,extra)=>{const b=document.createElement("button");b.className="chip"+(on?" on":"")+(extra||"");b.textContent=t;if(col)b.style.setProperty("--c",col);b.onclick=fn;c.appendChild(b)};
   const same=l=>l.length&&l.length===S.view.sel.length&&l.every(i=>S.view.sel.includes(i));
   add("Alle",same(S.subjects.map(s=>s.id)),null,()=>{S.view.sel=S.subjects.map(s=>s.id);upd()}," grp");
@@ -207,16 +219,22 @@ function chips(){
   S.subjects.forEach(s=>add(s.name,S.view.sel.includes(s.id),s.color,()=>{
     S.view.sel=S.view.multi?(S.view.sel.includes(s.id)?S.view.sel.filter(x=>x!==s.id):[...S.view.sel,s.id]):[s.id];upd()}))}
 $("multi").onchange=e=>{S.view.multi=e.target.checked;upd()};
+$("ctype").onchange=e=>{S.view.type=e.target.value;upd()};
 $("tot").onchange=e=>{S.view.total=e.target.checked;upd()};
 $("lim").onchange=e=>{S.view.limit=e.target.checked;upd()};
 function draw(){
   const labels=Array.from({length:S.exams},(_,i)=>"Prüfung "+(i+1));
   const sel=S.subjects.filter(s=>S.view.sel.includes(s.id)&&avgS(s)!==null),one=sel.length===1;
-  const ds=sel.map(s=>({label:one?"Gesamtbewertung":s.name,name:s.name,avg:avgS(s),data:gr(s),borderColor:s.color,backgroundColor:s.color+"22",borderWidth:3,pointRadius:3,pointBackgroundColor:"#fff",pointBorderColor:s.color,spanGaps:true,tension:0}));
-  if(sel.length>1&&S.view.total!==false)ds.push({label:"Gesamtbewertung",name:"Gesamt",avg:mean(sel.map(avgS)),data:labels.map((_,i)=>mean(sel.map(s=>gv(s,i)).filter(v=>v!==null))),borderColor:css("--tx"),borderWidth:3,borderDash:[2,5],pointRadius:3,spanGaps:true,tension:0});
-  if(S.view.limit!==false) ds.push({label:"Genügend / ungenügend (4.0)",isLimit:true,data:labels.map(()=>4),borderColor:"rgba(229,57,53,.45)",borderWidth:1.5,borderDash:[8,6],pointRadius:0,pointHoverRadius:0});
+const T=S.view.type||"line",bar=T==="bar";
+  const ds=sel.map(s=>{const base={label:one?"Gesamtbewertung":s.name,name:s.name,avg:avgS(s),data:gr(s),borderColor:s.color};
+    return bar?{...base,type:"bar",backgroundColor:s.color,borderWidth:1,borderRadius:4}
+      :{...base,type:"line",backgroundColor:s.color+"22",borderWidth:3,pointRadius:T==="dots"?5:3,pointBackgroundColor:T==="dots"?s.color:"#fff",pointBorderColor:s.color,showLine:T!=="dots",spanGaps:true,tension:0}});
+  if(sel.length>1&&S.view.total!==false)
+  ds.push({type:"line", label:"Gesamtbewertung",name:"Gesamt",avg:mean(sel.map(avgS)),data:labels.map((_,i)=>mean(sel.map(s=>gv(s,i)).filter(v=>v!==null))),borderColor:css("--tx"),borderWidth:3,borderDash:[2,5],pointRadius:3,spanGaps:true,tension:0});
+  if(S.view.limit!==false) 
+  ds.push({type:"line", label:"Genügend / ungenügend (4.0)",isLimit:true,data:labels.map(()=>4),borderColor:"rgba(229,57,53,.45)",borderWidth:1.5,borderDash:[8,6],pointRadius:0,pointHoverRadius:0});
   const tc=css("--mu"),gc=css("--grid");if(chart)chart.destroy();
-  chart=new Chart($("cv"),{type:"line",data:{labels,datasets:ds},plugins:[endLabels],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{right:one?72:118}},
+  chart=new Chart($("cv"),{type:bar?"bar":"line",data:{labels,datasets:ds},plugins:[endLabels],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{right:one?72:118}},
     scales:{y:{min:0.5,max:6.5,ticks:{stepSize:0.5,color:c=>Number.isInteger(c.tick.value)?tc:tc+"aa",callback:v=>v<1||v>6?"":Number.isInteger(v)?v:v.toFixed(1)},grid:{color:c=>Number.isInteger(c.tick.value)?gc:gc+"80"}},x:{ticks:{color:tc},grid:{color:gc}}},plugins:{legend:{labels:{color:tc}}}}});
   const a=one?avgS(sel[0]):mean(sel.map(avgS));
   $("avgTxt").innerHTML="Aktueller Durchschnitt: <b class=\""+cl(a)+"\">"+f1(a)+"</b>"}
