@@ -1,70 +1,71 @@
 <!DOCTYPE html>
-<html lang="de">
-  <head>
-    <meta charset="utf-8"><title>Notenrechner</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-    <link rel="shortcut icon" href="Screenshot 2026-11-05 111538.png" type="image/x-icon" />
-    <style>
-      :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-      --bg:#f3f4f6;--card:#fff;--tx:#1d2125;--mu:#6b7280;--bd:#dfe2e6;--ac:#2e7d5b;--ok:#2e9a2e;--bad:#e53935;--grid:#e5e7eb;--sh:0 1px 3px rgba(0,0,0,.08)}
-      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#111315;--card:#1b1e22;--tx:#e8eaed;--mu:#9aa0a6;--bd:#33373d;--grid:#2d3036;--ok:#4cc24c;--bad:#ff6b66;--sh:none}}
-      html{scroll-padding-top:env(safe-area-inset-top,0px)}
-      *{box-sizing:border-box}
-      body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding:16px;max-width:1200px;margin-inline:auto}
-      h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 10px}h3{margin:0 0 10px}
-      .sub{color:var(--mu);margin:0 0 16px;font-size:.9rem}
-      .card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:var(--sh)}
-      .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-      .hint{color:var(--mu);font-size:.8rem;margin:8px 0}
-      .ok{color:var(--ok)}.bad{color:var(--bad)}
-      button{font:inherit;color:var(--tx);cursor:pointer}
-      .b{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:.88rem}
-      .b:hover{border-color:var(--ac)}.b.pri{background:var(--ac);border-color:var(--ac);color:#fff}.b.dan{color:var(--bad);border-color:var(--bad)}
-      .ib{background:none;border:none;color:var(--mu);width:26px;height:26px;border-radius:6px;font-size:.95rem;padding:0}
-      .ib:hover{background:var(--bg)}.ib.x{color:var(--bad)}.ib.ask{background:var(--bad);color:#fff;width:auto;padding:0 8px;font-size:.75rem}
-      input[type=text],input[type=number],select{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font:inherit}
-      input[type=checkbox]{accent-color:var(--ac)}
-      /* Durchschnitte */
-      .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:12px}
-      .t{position:relative;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;background:var(--bg)}
-      .t span{display:block;color:var(--mu);font-size:.8rem;font-weight:600;padding-right:56px}
-      .t b{display:block;font-size:1.8rem;margin:2px 0}.t small{color:var(--mu)}
-      .tb{position:absolute;top:6px;right:6px;display:flex;gap:2px}
-      /* Diagramm */
-      .avg{
-      .top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:8px}.top .avg,.top .sw{margin:0}
-      text-align:center;font-style:italic;margin:0 0 8px}
-      .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-      .chip{border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:4px 12px;font-size:.85rem}
-      .chip.on{background:var(--c,var(--ac));border-color:var(--c,var(--ac));color:#fff}
-      .chip.grp{font-weight:600;border-style:dashed}.chip.grp.on{background:var(--ac);border-color:var(--ac)}
-      .ck:has(input:checked){background:var(--ac);border-color:var(--ac);color:#fff}
-      .sw{font-size:.85rem;color:var(--mu);display:inline-flex;gap:6px;align-items:center;margin-bottom:10px}
-      .chart{position:relative;height:400px}
-      details{margin-top:14px;border-top:1px solid var(--bd);padding-top:12px}summary{cursor:pointer;font-weight:600}
-      .kc{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:10px}.kc ul{margin:6px 0 0;padding-left:18px}
-      .verd{margin-top:12px;font-weight:700}
-      /* Tabelle */
-      .scroll{overflow-x:auto}table{border-collapse:collapse;width:100%}
-      th,td{padding:6px;text-align:center;border-bottom:1px solid var(--bd);font-size:.9rem;white-space:nowrap}
-      th{color:var(--mu);font-weight:600}td.nm,th.nm{text-align:left;font-weight:600}
-      .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-      td input{width:64px;text-align:center}td.a,td.z{font-weight:700}
-      .ex{display:inline-flex;align-items:center;gap:8px}
-      #newN{width:200px}
-      /* Presets */
-      .pl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)}
-      .pl small{color:var(--mu)}
-      /* Popup */
-      #modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
-      #modal.open{display:flex}
-      .md{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;width:100%;max-width:440px;max-height:85vh;overflow:auto}
-      .md label.fl{display:block;font-size:.85rem;color:var(--mu)}.md label.fl input{display:block;width:100%;margin-top:4px}
-      .mbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
-    </style>
-  </head>
-<body>
+<html lang="de"><head><meta charset="utf-8"><title>Notenrechner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ --bg:#f3f4f6;--card:#fff;--tx:#1d2125;--mu:#6b7280;--bd:#dfe2e6;--ac:#2e7d5b;--ok:#2e9a2e;--bad:#e53935;--grid:#e5e7eb;--sh:0 1px 3px rgba(0,0,0,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#111315;--card:#1b1e22;--tx:#e8eaed;--mu:#9aa0a6;--bd:#33373d;--grid:#2d3036;--ok:#4cc24c;--bad:#ff6b66;--sh:none}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding:16px;max-width:1200px;margin-inline:auto}
+h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 10px}h3{margin:0 0 10px}
+.sub{color:var(--mu);margin:0 0 16px;font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:var(--sh)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hint{color:var(--mu);font-size:.8rem;margin:8px 0}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+button{font:inherit;color:var(--tx);cursor:pointer}
+.b{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:.88rem}
+.b:hover{border-color:var(--ac)}.b.pri{background:var(--ac);border-color:var(--ac);color:#fff}.b.dan{color:var(--bad);border-color:var(--bad)}
+.ib{background:none;border:none;color:var(--mu);width:26px;height:26px;border-radius:6px;font-size:.95rem;padding:0}
+.ib:hover{background:var(--bg)}.ib.x{color:var(--bad)}.ib.ask{background:var(--bad);color:#fff;width:auto;padding:0 8px;font-size:.75rem}
+input[type=text],input[type=number],select{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font:inherit}
+input[type=checkbox]{accent-color:var(--ac)}
+/* Durchschnitte */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:12px}
+.t{position:relative;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;background:var(--bg)}
+.t span{display:block;color:var(--mu);font-size:.8rem;font-weight:600;padding-right:56px}
+.t b{display:block;font-size:1.8rem;margin:2px 0}.t small{color:var(--mu)}
+.tb{position:absolute;top:6px;right:6px;display:flex;gap:2px}
+/* Diagramm */
+.avg{text-align:center;font-style:italic;margin:0 0 8px}
+.vbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;border-bottom:1px solid var(--bd);margin:-4px 0 12px;padding-bottom:8px}
+.vt{display:inline-flex;align-items:center;gap:2px;border:1px solid transparent;border-radius:8px;padding:3px 10px;color:var(--mu);cursor:pointer;font-size:.9rem}
+.vt.on{background:var(--bg);color:var(--tx);border-color:var(--bd);font-weight:600;padding-right:4px}
+.vt .ib{width:22px;height:22px;font-size:.8rem}
+.vt .ib.ask{width:auto;min-width:70px;padding:0 10px;font-size:.8rem;white-space:nowrap;margin-left:4px}
+.vt:has(.ib.ask){padding-right:6px}
+.vbar .b{padding:2px 10px}
+.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:8px}.top .avg,.top .sw{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:4px 12px;font-size:.85rem}
+.chip.on{background:var(--c,var(--ac));border-color:var(--c,var(--ac));color:#fff}
+.chip.grp{font-weight:600;border-style:dashed}.chip.grp.on{background:var(--ac);border-color:var(--ac)}
+.ck:has(input:checked){background:var(--ac);border-color:var(--ac);color:#fff}
+.sw{font-size:.85rem;color:var(--mu);display:inline-flex;gap:6px;align-items:center;margin-bottom:10px}
+.chart{position:relative;height:400px}
+details{margin-top:14px;border-top:1px solid var(--bd);padding-top:12px}summary{cursor:pointer;font-weight:600}
+.kc{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-top:10px}.kc ul{margin:6px 0 0;padding-left:18px}
+.verd{margin-top:12px;font-weight:700}
+/* Tabelle */
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%}
+th,td{padding:6px;text-align:center;border-bottom:1px solid var(--bd);font-size:.9rem;white-space:nowrap}
+th{color:var(--mu);font-weight:600}td.nm,th.nm{text-align:left;font-weight:600}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+td input{width:64px;text-align:center}td.a,td.z{font-weight:700}
+.ex{display:inline-flex;align-items:center;gap:8px}
+#newN{width:200px}
+/* Presets */
+.pl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)}
+.pl small{color:var(--mu)}
+/* Popup */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+#modal.open{display:flex}
+.md{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;width:100%;max-width:440px;max-height:85vh;overflow:auto}
+.md label.fl{display:block;font-size:.85rem;color:var(--mu)}.md label.fl input{display:block;width:100%;margin-top:4px}
+.mbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
+</style></head><body>
 <h1>Notenrechner</h1>
 <p class="sub">Noten eintragen, Durchschnitte und Zeugnisnoten ansehen, Kompensationen prüfen.</p>
 
@@ -75,20 +76,12 @@
 </div>
 
 <div class="card">
-  <div class="top">
-    <label class="sw">Diagrammtyp: <select id="ctype">
-      <option value="line">Linien</option><option value="bar">Balken
-      </option>
-      <option value="dots">Punkte</option>
-    </select>
-  </label>
-  <p class="avg" id="avgTxt"></p>
-  <span>
-  </span></div>
+  <div class="vbar" id="vbar"></div>
+  <div class="top"><label class="sw">Diagrammtyp: <select id="ctype"></select></label><p class="avg" id="avgTxt"></p><span></span></div>
   <div class="chips" id="chips"></div>
   <label class="sw" style="margin-right:16px"><input type="checkbox" id="multi"> Mehrere Fächer gleichzeitig vergleichen</label>
   <label class="sw" style="margin-right:16px"><input type="checkbox" id="tot"> Gesamtbewertung anzeigen</label>
-  <label class="sw"><input type="checkbox" id="lim"> Linie bei 4.0 anzeigen</label>
+  <label class="sw" style="margin-right:16px"><input type="checkbox" id="lim"> Linie bei 4.0 anzeigen</label>
   <div class="chart"><canvas id="cv"></canvas></div>
   <details><summary>Kompensationen anzeigen</summary><div id="komp"></div></details>
 </div>
@@ -133,6 +126,8 @@ const KEY="noten_v2",PKEY="noten_presets";
 const INIT={DE:[3.9,4.7],EN:[5.1],FR:[3.2],FRW:[6],GP:[5.5],"IPT-1":[3.3],M117:[4.7],M122:[4.9],M162:[4.4],M319:[4.9],MA:[5.4],SP:[4],U187:[],WR:[5]};
 const DEF_A=["DE","EN","FR","FRW","GP","MA","WR"],DEF_B=["IPT-1","M117","M122","M162","M319"];
 let S;
+const V=()=>S.views?(S.views.find(v=>v.id===S.vid)||S.views[0]):S.view;
+const VT=[["line","Linien"],["area","Fläche"],["bar","Balken"],["hbar","Horizontale Balken"],["dots","Punkte"],["radar","Netzdiagramm"]];
 function hex(h,sa,l){sa/=100;l/=100;const k=n=>(n+h/30)%12,a=sa*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return"#"+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,"0")).join("")}
 const colorFor=k=>hex((k*137.508)%360,k%2?70:75,[42,52,35][k%3]);   // jede Farbe kommt nur einmal vor
 function addSubject(name,g=[]){const s={id:uid(),name,g:[...g],color:colorFor(S.nc++)};S.subjects.push(s);return s}
@@ -140,20 +135,21 @@ const blank=()=>({nc:0,exams:4,subjects:[],avgs:[],view:{sel:[],multi:false},kom
 function starter(){S=blank();Object.entries(INIT).forEach(([n,g])=>addSubject(n,g));
   const ids=l=>S.subjects.filter(s=>l.includes(s.name)).map(s=>s.id);
   S.avgs=[{id:uid(),name:"FMZ",subs:ids(DEF_A)},{id:uid(),name:"BBZW",subs:ids(DEF_B)}];
-  S.view.sel=ids(["DE"]);S.komp.avg=S.avgs[0].id}
+  V().sel=ids(["DE"]);S.komp.avg=S.avgs[0].id}
 function migrate(){try{const o=JSON.parse(localStorage.getItem("noten_v1")||"null");if(!o||!o.data)return false;
   S=blank();Object.keys(o.data).forEach(n=>addSubject(n,o.data[n].map(x=>x.g)));
   const ids=l=>S.subjects.filter(s=>(l||[]).includes(s.name)).map(s=>s.id);
   if((o.fmz||[]).length)S.avgs.push({id:uid(),name:"FMZ",subs:ids(o.fmz)});
   if((o.bbzw||[]).length)S.avgs.push({id:uid(),name:"BBZW",subs:ids(o.bbzw)});
   (o.custom||[]).forEach(c=>S.avgs.push({id:uid(),name:c.name,subs:ids(c.subs)}));
-  S.view.sel=ids((o.sel||[]).slice(0,1));S.komp.avg=S.avgs[0]?S.avgs[0].id:"";return true}catch(e){return false}}
+  V().sel=ids((o.sel||[]).slice(0,1));S.komp.avg=S.avgs[0]?S.avgs[0].id:"";return true}catch(e){return false}}
 try{const raw=localStorage.getItem(KEY);if(raw)S=JSON.parse(raw)}catch(e){}
 if(!S||!S.subjects){if(!migrate())starter()}
+if(!S.views){S.views=[{id:uid(),name:"Diagramm",type:"line",exams:null,sel:[],multi:false,total:true,limit:true,...(S.view||{})}];S.vid=S.views[0].id;delete S.view}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 function sync(){const ids=S.subjects.map(s=>s.id);
   S.avgs.forEach(a=>a.subs=a.subs.filter(i=>ids.includes(i)));
-  S.view.sel=S.view.sel.filter(i=>ids.includes(i));S.komp.off=S.komp.off.filter(i=>ids.includes(i));
+  S.views.forEach(v=>{v.sel=v.sel.filter(i=>ids.includes(i));const e=(v.exams||[]).filter(i=>i<S.exams);v.exams=e.length?e:null});S.komp.off=S.komp.off.filter(i=>ids.includes(i));
   if(S.komp.avg&&!S.avgs.some(a=>a.id===S.komp.avg)){S.komp.avg="";S.komp.off=[]}}
 
 /* ---------- Berechnungen ---------- */
@@ -210,34 +206,73 @@ const endLabels={id:"endLabels",afterDatasetsDraw(c){
     ctx.font="700 18px system-ui,sans-serif";ctx.fillStyle=r1(it.avg)>=4?css("--ok"):css("--bad");ctx.fillText(it.avg.toFixed(1),px,it.y)});
   ctx.restore()}};
 function chips(){
-  const c=$("chips");c.innerHTML="";$("multi").checked=S.view.multi;$("tot").checked=S.view.total!==false;
-  $("ctype").value=S.view.type||"line";
+  const c=$("chips");c.innerHTML="";$("multi").checked=V().multi;$("tot").checked=V().total!==false;$("lim").checked=V().limit!==false;$("ctype").value=V().type||"line";
   const add=(t,on,col,fn,extra)=>{const b=document.createElement("button");b.className="chip"+(on?" on":"")+(extra||"");b.textContent=t;if(col)b.style.setProperty("--c",col);b.onclick=fn;c.appendChild(b)};
-  const same=l=>l.length&&l.length===S.view.sel.length&&l.every(i=>S.view.sel.includes(i));
-  add("Alle",same(S.subjects.map(s=>s.id)),null,()=>{S.view.sel=S.subjects.map(s=>s.id);upd()}," grp");
-  S.avgs.forEach(a=>add(a.name,same(a.subs),null,()=>{S.view.sel=[...a.subs];upd()}," grp"));
-  S.subjects.forEach(s=>add(s.name,S.view.sel.includes(s.id),s.color,()=>{
-    S.view.sel=S.view.multi?(S.view.sel.includes(s.id)?S.view.sel.filter(x=>x!==s.id):[...S.view.sel,s.id]):[s.id];upd()}))}
-$("multi").onchange=e=>{S.view.multi=e.target.checked;upd()};
-$("ctype").onchange=e=>{S.view.type=e.target.value;upd()};
-$("tot").onchange=e=>{S.view.total=e.target.checked;upd()};
-$("lim").onchange=e=>{S.view.limit=e.target.checked;upd()};
+  const same=l=>l.length&&l.length===V().sel.length&&l.every(i=>V().sel.includes(i));
+  add("Alle",same(S.subjects.map(s=>s.id)),null,()=>{V().sel=S.subjects.map(s=>s.id);upd()}," grp");
+  S.avgs.forEach(a=>add(a.name,same(a.subs),null,()=>{V().sel=[...a.subs];upd()}," grp"));
+  S.subjects.forEach(s=>add(s.name,V().sel.includes(s.id),s.color,()=>{
+    V().sel=V().multi?(V().sel.includes(s.id)?V().sel.filter(x=>x!==s.id):[...V().sel,s.id]):[s.id];upd()}))}
+$("multi").onchange=e=>{V().multi=e.target.checked;upd()};
+$("tot").onchange=e=>{V().total=e.target.checked;upd()};
+$("lim").onchange=e=>{V().limit=e.target.checked;upd()};
+$("ctype").onchange=e=>{V().type=e.target.value;upd()};
+const limX={id:"limX",afterDraw(c){if(!c.options.showLimX)return;const x=c.scales.x.getPixelForValue(4),a=c.chartArea,g=c.ctx;
+  g.save();g.strokeStyle="rgba(229,57,53,.55)";g.setLineDash([8,6]);g.lineWidth=1.5;g.beginPath();g.moveTo(x,a.top);g.lineTo(x,a.bottom);g.stroke();g.restore()}};
 function draw(){
-  const labels=Array.from({length:S.exams},(_,i)=>"Prüfung "+(i+1));
-  const sel=S.subjects.filter(s=>S.view.sel.includes(s.id)&&avgS(s)!==null),one=sel.length===1;
-const T=S.view.type||"line",bar=T==="bar";
-  const ds=sel.map(s=>{const base={label:one?"Gesamtbewertung":s.name,name:s.name,avg:avgS(s),data:gr(s),borderColor:s.color};
-    return bar?{...base,type:"bar",backgroundColor:s.color,borderWidth:1,borderRadius:4}
-      :{...base,type:"line",backgroundColor:s.color+"22",borderWidth:3,pointRadius:T==="dots"?5:3,pointBackgroundColor:T==="dots"?s.color:"#fff",pointBorderColor:s.color,showLine:T!=="dots",spanGaps:true,tension:0}});
-  if(sel.length>1&&S.view.total!==false)
-  ds.push({type:"line", label:"Gesamtbewertung",name:"Gesamt",avg:mean(sel.map(avgS)),data:labels.map((_,i)=>mean(sel.map(s=>gv(s,i)).filter(v=>v!==null))),borderColor:css("--tx"),borderWidth:3,borderDash:[2,5],pointRadius:3,spanGaps:true,tension:0});
-  if(S.view.limit!==false) 
-  ds.push({type:"line", label:"Genügend / ungenügend (4.0)",isLimit:true,data:labels.map(()=>4),borderColor:"rgba(229,57,53,.45)",borderWidth:1.5,borderDash:[8,6],pointRadius:0,pointHoverRadius:0});
-  const tc=css("--mu"),gc=css("--grid");if(chart)chart.destroy();
-  chart=new Chart($("cv"),{type:bar?"bar":"line",data:{labels,datasets:ds},plugins:[endLabels],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{right:one?72:118}},
-    scales:{y:{min:0.5,max:6.5,ticks:{stepSize:0.5,color:c=>Number.isInteger(c.tick.value)?tc:tc+"aa",callback:v=>v<1||v>6?"":Number.isInteger(v)?v:v.toFixed(1)},grid:{color:c=>Number.isInteger(c.tick.value)?gc:gc+"80"}},x:{ticks:{color:tc},grid:{color:gc}}},plugins:{legend:{labels:{color:tc}}}}});
-  const a=one?avgS(sel[0]):mean(sel.map(avgS));
+  const v=V(),T=v.type||"line",tc=css("--mu"),gc=css("--grid"),blue="#2a78d6",red="#e34948",polar=T==="hbar"||T==="radar";
+  const ix=Array.from({length:S.exams},(_,i)=>i).filter(i=>!v.exams||v.exams.includes(i));
+  const labels=ix.map(i=>"Prüfung "+(i+1)),gx=s=>ix.map(i=>gv(s,i)),ax=s=>mean(gx(s).filter(x=>x!==null));
+  let pool=S.subjects.filter(s=>v.sel.includes(s.id));if(polar&&pool.length<2)pool=S.subjects;
+  const sel=pool.filter(s=>ax(s)!==null),one=sel.length===1,showLim=v.limit!==false;
+  const limit={type:"line",label:"Genügend / ungenügend (4.0)",isLimit:true,data:labels.map(()=>4),borderColor:"rgba(229,57,53,.45)",borderWidth:1.5,borderDash:[8,6],pointRadius:0,pointHoverRadius:0};
+  let type="line",data,options={responsive:true,maintainAspectRatio:false,animation:false};
+  if(T==="hbar"){type="bar";const o=[...sel].sort((a,b)=>ax(b)-ax(a));
+    data={labels:o.map(s=>s.name),datasets:[{data:o.map(s=>r1(ax(s))),backgroundColor:o.map(s=>r1(ax(s))>=4?blue:red),borderRadius:4,barThickness:18}]};
+    Object.assign(options,{indexAxis:"y",showLimX:showLim,plugins:{legend:{display:false}},scales:{x:{min:1,max:6,ticks:{stepSize:0.5,color:tc},grid:{color:gc}},y:{ticks:{color:tc},grid:{display:false}}}})}
+  else if(T==="radar"){type="radar";
+    const dr=[{label:"Durchschnitt",data:sel.map(s=>r1(ax(s))),borderColor:blue,backgroundColor:"rgba(42,120,214,.15)",borderWidth:2,pointRadius:3,pointBackgroundColor:blue}];
+    if(showLim)dr.push({label:"Genügend / ungenügend (4.0)",data:sel.map(()=>4),borderColor:"rgba(229,57,53,.45)",borderDash:[8,6],borderWidth:1.5,pointRadius:0,fill:false});
+    data={labels:sel.map(s=>s.name),datasets:dr};
+    Object.assign(options,{plugins:{legend:{labels:{color:tc}}},scales:{r:{min:1,max:6,ticks:{stepSize:1,color:tc,backdropColor:"transparent"},grid:{color:gc},angleLines:{color:gc},pointLabels:{color:tc}}}})}
+  else{const bar=T==="bar";type=bar?"bar":"line";
+    const ds=sel.map(s=>{const base={label:one?"Gesamtbewertung":s.name,name:s.name,avg:ax(s),data:gx(s),borderColor:s.color};
+      return bar?{...base,type:"bar",backgroundColor:s.color,borderWidth:1,borderRadius:4}
+        :{...base,type:"line",backgroundColor:s.color+(T==="area"?"44":"22"),fill:T==="area",borderWidth:3,pointRadius:T==="dots"?5:3,pointBackgroundColor:T==="dots"?s.color:"#fff",pointBorderColor:s.color,showLine:T!=="dots",spanGaps:true,tension:0}});
+    if(sel.length>1&&v.total!==false){const G=sel.map(gx);ds.push({type:"line",label:"Gesamtbewertung",name:"Gesamt",avg:mean(sel.map(ax)),data:labels.map((_,j)=>mean(G.map(g=>g[j]).filter(x=>x!==null))),borderColor:css("--tx"),borderWidth:3,borderDash:[2,5],pointRadius:3,spanGaps:true,tension:0})}
+    if(showLim)ds.push(limit);
+    data={labels,datasets:ds};
+    Object.assign(options,{layout:{padding:{right:one?72:118}},plugins:{legend:{labels:{color:tc}}},
+      scales:{y:{min:0.5,max:6.5,ticks:{stepSize:0.5,color:c=>Number.isInteger(c.tick.value)?tc:tc+"aa",callback:q=>q<1||q>6?"":Number.isInteger(q)?q:q.toFixed(1)},grid:{color:c=>Number.isInteger(c.tick.value)?gc:gc+"80"}},x:{ticks:{color:tc},grid:{color:gc}}}})}
+  $("cv").parentElement.style.height=(T==="hbar"?Math.max(260,sel.length*30+80):400)+"px";
+  if(chart)chart.destroy();
+  chart=new Chart($("cv"),{type,data,plugins:[endLabels,limX],options});
+  const a=one?ax(sel[0]):mean(sel.map(ax));
   $("avgTxt").innerHTML="Aktueller Durchschnitt: <b class=\""+cl(a)+"\">"+f1(a)+"</b>"}
+
+/* ---------- Ansichten (Tabs) ---------- */
+function views(){
+  $("vbar").innerHTML=S.views.map(v=>{const on=v.id===S.vid;
+    return'<div class="vt'+(on?" on":"")+'" data-v="'+v.id+'"><span>'+esc(v.name)+'</span>'+(on?'<button class="ib" data-ve="'+v.id+'" title="Bearbeiten">⋮</button>'+(S.views.length>1?'<button class="ib x" data-vd="'+v.id+'" title="Löschen">✕</button>':""):"")+'</div>'}).join("")
+    +'<button class="b" id="vAdd" title="Neue Ansicht">+</button>'}
+$("vbar").onclick=e=>{const b=e.target.closest("button");
+  if(b&&b.id==="vAdd"){viewModal(null);return}
+  if(b&&b.dataset.ve){viewModal(S.views.find(x=>x.id===b.dataset.ve));return}
+  if(b&&b.dataset.vd){twoStep(b,"Löschen?",()=>{S.views=S.views.filter(x=>x.id!==b.dataset.vd);S.vid=S.views[0].id;upd()});return}
+  const t=e.target.closest(".vt");if(t){S.vid=t.dataset.v;upd()}};
+function viewModal(v){const n=S.exams,cur=v?v.exams:null;
+  const body='<label class="fl">Name<input type="text" id="vN" maxlength="20" value="'+esc(v?v.name:"Ansicht "+(S.views.length+1))+'"></label>'
+    +'<label class="fl" style="margin-top:10px">Diagrammtyp<select id="vT" style="display:block;width:100%;margin-top:4px">'+VT.map(([k,t])=>'<option value="'+k+'"'+((v?v.type:"line")===k?" selected":"")+'>'+t+'</option>').join("")+'</select></label>'
+    +'<p class="hint">Diese Prüfungen werden in der Ansicht betrachtet:</p><div class="chips" id="vE">'+Array.from({length:n},(_,i)=>'<label class="chip ck"><input type="checkbox" value="'+i+'"'+(!cur||cur.includes(i)?" checked":"")+'> Prüfung '+(i+1)+'</label>').join("")+'</div><p class="bad" id="vErr"></p>';
+  modal(v?"Ansicht bearbeiten":"Ansicht hinzufügen",body,[{t:"Abbrechen"},{t:v?"Speichern":"Hinzufügen",cls:"pri",fn:()=>{
+    const name=$("vN").value.trim(),ex=[...document.querySelectorAll("#vE input:checked")].map(x=>+x.value);
+    if(!name){$("vErr").textContent="Bitte einen Namen eingeben.";return false}
+    if(!ex.length){$("vErr").textContent="Bitte mindestens eine Prüfung wählen.";return false}
+    const exams=ex.length===n?null:ex,type=$("vT").value;
+    if(v){v.name=name;v.exams=exams;v.type=type}
+    else{const a=V(),nv={id:uid(),name,type,exams,sel:[...a.sel],multi:a.multi,total:a.total!==false,limit:a.limit!==false};S.views.push(nv);S.vid=nv.id}
+    upd()}}])}
+
 /* ---------- Kompensation ---------- */
 function komp(){
   const el=$("komp"),ka=S.avgs.find(a=>a.id===S.komp.avg);
@@ -275,12 +310,12 @@ $("exMin").onclick=()=>{if(S.exams>1){S.exams--;table();upd()}};
 $("exPlus").onclick=()=>{if(S.exams<10){S.exams++;table();upd()}};
 $("addSub").onclick=()=>{const i=$("newN"),n=i.value.trim();if(!n)return;
   if(S.subjects.some(s=>s.name.toLowerCase()===n.toLowerCase())){i.value="";i.placeholder="Fach existiert schon";return}
-  const s=addSubject(n);S.view.sel=S.view.multi?[...S.view.sel,s.id]:[s.id];i.value="";i.placeholder="Neues Fach, z. B. M123";table();upd()};
+  const s=addSubject(n);V().sel=V().multi?[...V().sel,s.id]:[s.id];i.value="";i.placeholder="Neues Fach, z. B. M123";table();upd()};
 $("newN").onkeydown=e=>{if(e.key==="Enter")$("addSub").click()};
 $("reset").onclick=()=>modal("Zurücksetzen","<p>Was soll zurückgesetzt werden?</p><p class=\"hint\">Fächer und Durchschnitte können auch mit gelöscht werden.</p>",[
   {t:"Abbrechen"},
   {t:"Nur Noten löschen",fn:()=>{S.subjects.forEach(s=>s.g=[]);table();upd()}},
-  {t:"Alles löschen",cls:"dan",fn:()=>{S.subjects=[];S.avgs=[];S.view.sel=[];S.komp={avg:"",off:[]};S.nc=0;table();upd()}}]);
+  {t:"Alles löschen",cls:"dan",fn:()=>{S.subjects=[];S.avgs=[];S.views.forEach(x=>x.sel=[]);S.komp={avg:"",off:[]};S.nc=0;table();upd()}}]);
 
 /* ---------- Presets ---------- */
 const lib=()=>{try{return JSON.parse(localStorage.getItem(PKEY)||"[]")}catch(e){return[]}};
@@ -293,7 +328,7 @@ function addToLib(p){const l=lib().filter(x=>x.name!==p.name);l.push(p);saveLib(
 function applyPreset(p){S.nc=0;S.exams=Math.min(10,Math.max(1,(p.exams|0)||4));S.subjects=[];
   p.subjects.forEach(x=>{const s=addSubject(String(x.name).slice(0,14),x.g||[]);if(/^#[0-9a-f]{6}$/i.test(x.color||""))s.color=x.color});
   S.avgs=p.averages.map(a=>({id:uid(),name:String(a.name).slice(0,20),mp:a.mp!==false,subs:S.subjects.filter(s=>(a.subjects||[]).includes(s.name)).map(s=>s.id)}));
-  S.view.sel=S.subjects[0]?[S.subjects[0].id]:[];S.komp={avg:"",off:[]};table();upd()}
+  S.views.forEach(x=>x.sel=S.subjects[0]?[S.subjects[0].id]:[]);S.komp={avg:"",off:[]};table();upd()}
 async function saveFile(name,text){
   const filename=name.replace(/[^\w\- äöüÄÖÜéèà]/g,"_").trim()+".json";
   try{const d=window.claude&&claude.use?await claude.use("downloads"):null;
@@ -318,7 +353,8 @@ $("fileIn").onchange=e=>{importFiles([...e.target.files]);e.target.value=""};
 $("dirIn").onchange=e=>{importFiles([...e.target.files]);e.target.value=""};
 
 /* ---------- Start ---------- */
-function upd(){sync();save();chips();tiles();draw();calc();komp()}
+function upd(){sync();save();views();chips();tiles();draw();calc();komp()}
+$("ctype").innerHTML=VT.map(([k,t])=>'<option value="'+k+'">'+t+'</option>').join("");
 table();upd();renderPresets();
 matchMedia("(prefers-color-scheme:dark)").addEventListener("change",draw);
 </script></body></html>
