@@ -9,8 +9,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <link
       rel="shortcut icon"
-      href="Screenshot 2026-11-05 111538.png"
-      type="image/x-icon" />
+      type="image/x-icon"
+      href="Screenshot 2026-11-05 111538.png" />
     <style>
       :root {
         box-sizing: border-box;
@@ -429,6 +429,176 @@
         justify-content: flex-end;
         margin-top: 14px;
       }
+      input[readonly] {
+        background: var(--bg);
+        cursor: not-allowed;
+        opacity: 0.85;
+      }
+      .tm {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 3px;
+        font-size: 0.68rem;
+        color: var(--mu);
+        max-width: 110px;
+        margin: 2px auto 0;
+      }
+      .tm span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 88px;
+      }
+      .tm.dflt span {
+        opacity: 0.6;
+      }
+      .ed {
+        visibility: hidden;
+        border: none;
+        background: none;
+        color: var(--mu);
+        cursor: pointer;
+        padding: 0;
+        font-size: 0.8rem;
+        line-height: 1;
+      }
+      td:hover .ed {
+        visibility: visible;
+      }
+      .ed:hover {
+        color: var(--tx);
+      }
+      @media (hover: none) {
+        .ed {
+          visibility: visible;
+        }
+      }
+      .res {
+        border: 1px solid var(--bd);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-top: 12px;
+        background: var(--bg);
+      }
+      .res b.big {
+        font-size: 1.8rem;
+        display: block;
+        margin: 4px 0;
+      }
+      .fl2 {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--mu);
+        margin-top: 8px;
+      }
+      .fl2 input,
+      .fl2 select {
+        display: block;
+        width: 100%;
+        margin-top: 4px;
+      }
+      .warn {
+        color: var(--bad);
+        font-weight: 700;
+        margin: 8px 0 0;
+      }
+      .seg {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin: 10px 0;
+        font-size: 0.9rem;
+      }
+      .sub2 {
+        margin: 20px 0 4px;
+      }
+      .swl {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0;
+      }
+      .swt {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--bd);
+        border-radius: 10px;
+        padding: 6px 10px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        background: var(--bg);
+      }
+      .swt input {
+        display: none;
+      }
+      .swt .tr {
+        width: 30px;
+        height: 16px;
+        border-radius: 999px;
+        background: var(--bd);
+        position: relative;
+        transition: 0.15s;
+        flex: none;
+      }
+      .swt .tr::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #fff;
+        transition: 0.15s;
+      }
+      .swt input:checked + .tr {
+        background: var(--c);
+      }
+      .swt input:checked + .tr::after {
+        left: 16px;
+      }
+      .rk {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 10px;
+        border: 1px solid var(--bd);
+        border-radius: 10px;
+        margin-top: 6px;
+        max-width: 380px;
+        background: var(--bg);
+      }
+      .rn {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--bd);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+      .rk {
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+        position: relative;
+        transition: transform 0.12s;
+      }
+      .rk.drag {
+        transition: none;
+        z-index: 5;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        cursor: grabbing;
+      }
+      .gr {
+        color: var(--mu);
+        font-size: 1.1rem;
+        line-height: 1;
+      }
     </style>
   </head>
   <body>
@@ -437,89 +607,159 @@
       Noten eintragen, Durchschnitte und Zeugnisnoten ansehen, Kompensationen
       prüfen.
     </p>
-    <div class="card">
-      <h2>Durchschnitte</h2>
-      <div class="tiles" id="tiles"></div>
-      <button class="b" id="addAvg">+ Durchschnitt hinzufügen</button>
-    </div>
-    <div class="card">
-      <div class="vbar" id="vbar"></div>
-      <div class="top">
-        <label class="sw"
-          >Diagrammtyp:
-          <select id="ctype"></select
-        ></label>
-        <p class="avg" id="avgTxt"></p>
-        <span></span>
+    <div class="vbar" id="pbar"></div>
+    <div id="periodView">
+      <div class="card">
+        <h2>Durchschnitte</h2>
+        <div class="tiles" id="tiles"></div>
+        <button class="b" id="addAvg">+ Durchschnitt hinzufügen</button>
       </div>
-      <div class="chips" id="chips"></div>
-      <label class="sw" style="margin-right: 16px"
-        ><input type="checkbox" id="multi" /> Mehrere Fächer gleichzeitig
-        vergleichen</label
-      >
-      <label class="sw" style="margin-right: 16px"
-        ><input type="checkbox" id="tot" /> Gesamtbewertung anzeigen</label
-      >
-      <label class="sw" style="margin-right: 16px"
-        ><input type="checkbox" id="lim" /> Linie bei 4.0 anzeigen</label
-      >
-      <div class="chart"><canvas id="cv"></canvas></div>
-      <details>
-        <summary>Kompensationen anzeigen</summary>
-        <div id="komp"></div>
-      </details>
-    </div>
-    <div class="card">
-      <div
-        class="row"
-        style="justify-content: space-between; margin-bottom: 10px">
-        <h2 style="margin: 0">Noten</h2>
-        <span class="ex"
-          >Prüfungen: <button class="b" id="exMin">−</button><b id="exN"></b
-          ><button class="b" id="exPlus">+</button></span
+
+      <div class="card">
+        <div class="vbar" id="vbar"></div>
+        <div class="top">
+          <label class="sw"
+            >Diagrammtyp:
+            <select id="ctype"></select
+          ></label>
+          <p class="avg" id="avgTxt"></p>
+          <span></span>
+        </div>
+        <div class="chips" id="chips"></div>
+        <label class="sw" style="margin-right: 16px"
+          ><input type="checkbox" id="multi" /> Mehrere Fächer gleichzeitig
+          vergleichen</label
         >
+        <label class="sw" style="margin-right: 16px"
+          ><input type="checkbox" id="tot" /> Gesamtbewertung anzeigen</label
+        >
+        <label class="sw" style="margin-right: 16px"
+          ><input type="checkbox" id="lim" /> Linie bei 4.0 anzeigen</label
+        >
+        <div class="chips" id="rchips" style="display: none"></div>
+        <div class="chart"><canvas id="cv"></canvas></div>
+        <details>
+          <summary>Kompensationen anzeigen</summary>
+          <div id="komp"></div>
+        </details>
       </div>
-      <div class="scroll">
-        <table>
-          <thead id="th"></thead>
-          <tbody id="tb"></tbody>
-        </table>
+
+      <div class="card">
+        <div
+          class="row"
+          style="justify-content: space-between; margin-bottom: 10px">
+          <h2 style="margin: 0">Noten</h2>
+          <span class="row"
+            ><button class="b" id="lockB"></button
+            ><button class="b pri" id="capB">+ Note erfassen</button></span
+          >
+          <span class="ex"
+            >Prüfungen: <button class="b" id="exMin">−</button><b id="exN"></b
+            ><button class="b" id="exPlus">+</button></span
+          >
+        </div>
+        <div class="scroll">
+          <table>
+            <thead id="th"></thead>
+            <tbody id="tb"></tbody>
+          </table>
+        </div>
+        <div class="row" style="margin-top: 12px">
+          <input
+            type="text"
+            id="newN"
+            maxlength="14"
+            placeholder="Neues Fach, z. B. M123" /><button
+            class="b"
+            id="addSub">
+            Fach hinzufügen
+          </button>
+        </div>
+        <div style="margin-top: 12px">
+          <button class="b dan" id="reset">Zurücksetzen</button>
+        </div>
       </div>
-      <div class="row" style="margin-top: 12px">
+
+      <div class="card">
+        <h2>Selbstbewertung und Prognose</h2>
+        <p class="hint">
+          Ein System: Mit «Prognose berechnen» wählst du Fach und Prüfung.
+          Fehlen frühere Prüfungen, trägst du zuerst deren Selbstbewertung nach.
+          Daraus wird die erwartete Note berechnet.
+        </p>
+        <div class="row">
+          <button class="b pri" id="sfPred">Prognose berechnen</button>
+        </div>
+        <div id="sfOut"></div>
+        <h3 class="sub2">Erwartete Noten</h3>
+        <p class="hint">
+          Linie: bisherige Noten. Kerze: der Strich reicht von der tiefsten bis
+          zur höchsten möglichen Note, der Körper von der letzten Note bis zur
+          erwarteten Note, der Querstrich markiert die erwartete Note. Grün =
+          genügend, rot = ungenügend. Mit den Schaltern vergleichst du mehrere
+          Fächer gleichzeitig.
+        </p>
+        <div class="swl" id="swList"></div>
+        <div class="chart" style="height: 320px">
+          <canvas id="cvPred"></canvas>
+        </div>
+        <div class="scroll" id="predTb" style="margin-top: 12px"></div>
+        <h3 class="sub2">Prüfungstypen nach Schwierigkeit</h3>
+        <div class="row"><select id="rkS"></select></div>
+        <p class="hint">
+          Oben = schwerste Prüfung, unten = einfachste. Mit den drei Punkten
+          änderst du die Reihenfolge. Sie gilt nur für das gewählte Fach.
+        </p>
+        <div id="rkList"></div>
+        <details>
+          <summary>Gespeicherte Selbstbewertungen</summary>
+          <div class="scroll" id="sfList" style="margin-top: 10px"></div>
+        </details>
+      </div>
+
+      <div class="card">
+        <h2>Presets</h2>
+        <p class="hint">
+          Ein Preset enthält Fächer, Durchschnitte und die Anzahl Prüfungen (auf
+          Wunsch auch die Noten). Jedes Preset hat einen Namen.
+        </p>
+        <div class="row">
+          <button class="b pri" id="pSave">Aktuelles Preset speichern</button>
+          <button class="b" id="pFile">Datei laden</button>
+          <button class="b" id="pDir">Ordner wählen</button>
+        </div>
         <input
-          type="text"
-          id="newN"
-          maxlength="14"
-          placeholder="Neues Fach, z. B. M123" /><button class="b" id="addSub">
-          Fach hinzufügen
-        </button>
-      </div>
-      <div style="margin-top: 12px">
-        <button class="b dan" id="reset">Zurücksetzen</button>
+          type="file"
+          id="fileIn"
+          accept=".json,application/json"
+          multiple
+          hidden />
+        <input type="file" id="dirIn" webkitdirectory multiple hidden />
+        <p class="hint" id="pmsg"></p>
+        <div id="plist"></div>
       </div>
     </div>
-    <div class="card">
-      <h2>Presets</h2>
-      <p class="hint">
-        Ein Preset enthält Fächer, Durchschnitte und die Anzahl Prüfungen (auf
-        Wunsch auch die Noten). Jedes Preset hat einen Namen.
-      </p>
-      <div class="row">
-        <button class="b pri" id="pSave">Aktuelles Preset speichern</button>
-        <button class="b" id="pFile">Datei laden</button>
-        <button class="b" id="pDir">Ordner wählen</button>
+    <div id="allView" style="display: none">
+      <div class="card">
+        <h2 id="allH">Gesamtansicht</h2>
+        <p id="aSum" style="margin: 0 0 10px"></p>
+        <div class="chips" id="aChips"></div>
+        <div class="chart" style="height: 380px">
+          <canvas id="cvAll"></canvas>
+        </div>
       </div>
-      <input
-        type="file"
-        id="fileIn"
-        accept=".json,application/json"
-        multiple
-        hidden />
-      <input type="file" id="dirIn" webkitdirectory multiple hidden />
-      <p class="hint" id="pmsg"></p>
-      <div id="plist"></div>
+      <div class="card">
+        <h2>Übersicht pro Semester</h2>
+        <div class="scroll">
+          <table>
+            <thead id="allTh"></thead>
+            <tbody id="allTb"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
     <div id="modal"></div>
+
     <script>
       const $ = (id) => document.getElementById(id);
       const esc = (t) =>
@@ -564,7 +804,8 @@
       };
       const DEF_A = ["DE", "EN", "FR", "FRW", "GP", "MA", "WR"],
         DEF_B = ["IPT-1", "M117", "M122", "M162", "M319"];
-      let S;
+      let S,
+        R = null;
       const V = () =>
         S.views ? S.views.find((v) => v.id === S.vid) || S.views[0] : S.view;
       const VT = [
@@ -651,8 +892,13 @@
       }
       try {
         const raw = localStorage.getItem(KEY);
-        if (raw) S = JSON.parse(raw);
+        if (raw) {
+          const o = JSON.parse(raw);
+          if (o && o.periods) R = o;
+          else S = o;
+        }
       } catch (e) {}
+      if (R) S = R.periods.find((p) => p.id === R.cur) || R.periods[0];
       if (!S || !S.subjects) {
         if (!migrate()) starter();
       }
@@ -673,9 +919,23 @@
         S.vid = S.views[0].id;
         delete S.view;
       }
+      if (!R) {
+        S.id = uid();
+        S.name = "Semester 1";
+        R = { periods: [S], pid: S.id, cur: S.id, allSel: null };
+      }
+      R.periods.forEach((p) => {
+        p.selfs = p.selfs || [];
+        p.meta = p.meta || {};
+        p.locked = !!p.locked;
+        p.rank = p.rank || {};
+        p.year = p.year || "Jahr 1";
+      });
+      if (R.pid !== "all" && !R.periods.some((p) => p.id === R.pid))
+        R.pid = S.id;
       const save = () => {
         try {
-          localStorage.setItem(KEY, JSON.stringify(S));
+          localStorage.setItem(KEY, JSON.stringify(R));
         } catch (e) {}
       };
       function sync() {
@@ -1063,17 +1323,29 @@
           });
         } else if (T === "radar") {
           type = "radar";
-          const dr = [
-            {
-              label: "Durchschnitt",
-              data: sel.map((s) => r1(ax(s))),
-              borderColor: blue,
-              backgroundColor: "rgba(42,120,214,.15)",
+          const hid = v.rx || [];
+          const dr = ix
+            .filter((i) => !hid.includes(i))
+            .map((i) => ({
+              label: "Prüfung " + (i + 1),
+              data: sel.map((s) => gv(s, i)),
+              borderColor: EC[i % EC.length],
+              backgroundColor: EC[i % EC.length] + "1f",
               borderWidth: 2,
               pointRadius: 3,
-              pointBackgroundColor: blue,
-            },
-          ];
+              pointBackgroundColor: EC[i % EC.length],
+              spanGaps: true,
+            }));
+          if (v.avgShow !== false)
+            dr.push({
+              label: "Durchschnitt",
+              data: sel.map((s) => r1(ax(s))),
+              borderColor: css("--tx"),
+              backgroundColor: "rgba(136,135,129,.12)",
+              borderWidth: 3,
+              pointRadius: 3,
+              pointBackgroundColor: css("--tx"),
+            });
           if (showLim)
             dr.push({
               label: "Genügend / ungenügend (4.0)",
@@ -1466,7 +1738,11 @@
                   i +
                   '" value="' +
                   (gv(s, i) ?? "") +
-                  '"></td>',
+                  '"' +
+                  (S.locked ? " readonly" : "") +
+                  ">" +
+                  metaCap(s, i) +
+                  "</td>",
               ).join("") +
               '<td class="a" id="a_' +
               s.id +
@@ -1482,7 +1758,7 @@
       }
       $("tb").oninput = (e) => {
         const el = e.target;
-        if (!el.dataset.s) return;
+        if (!el.dataset.s || S.locked) return;
         const s = S.subjects.find((x) => x.id === el.dataset.s),
           i = +el.dataset.i;
         while (s.g.length <= i) s.g.push("");
@@ -1496,6 +1772,11 @@
         el.value = gv(s, +el.dataset.i) ?? "";
       };
       $("tb").onclick = (e) => {
+        const ed = e.target.closest("button[data-ed]");
+        if (ed) {
+          renameExam(ed.dataset.ed);
+          return;
+        }
         const b = e.target.closest("button[data-ds]");
         if (!b) return;
         twoStep(b, "Löschen?", () => {
@@ -1569,6 +1850,7 @@
               t: "Nur Noten löschen",
               fn: () => {
                 S.subjects.forEach((s) => (s.g = []));
+                S.meta = {};
                 table();
                 upd();
               },
@@ -1582,6 +1864,11 @@
                 S.views.forEach((x) => (x.sel = []));
                 S.komp = { avg: "", off: [] };
                 S.nc = 0;
+                S.selfs = [];
+                S.meta = {};
+                S.rank = {};
+                S.pred = null;
+                S.predSel = null;
                 table();
                 upd();
               },
@@ -1806,16 +2093,1386 @@
         e.target.value = "";
       };
 
+      const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+      const EC = [
+        "#2a78d6",
+        "#e8833a",
+        "#2e9a2e",
+        "#9467bd",
+        "#17becf",
+        "#c2185b",
+        "#8c564b",
+        "#bcbd22",
+        "#3f51b5",
+        "#7f7f7f",
+      ];
+      const AC = [
+        "#2a78d6",
+        "#e8833a",
+        "#2e9a2e",
+        "#9467bd",
+        "#c2185b",
+        "#17becf",
+      ];
+
+      /* ---------- Netzdiagramm: Prüfungen ein-/ausblenden ---------- */
+      function rchips() {
+        const v = V(),
+          el = $("rchips");
+        if (v.type !== "radar") {
+          el.style.display = "none";
+          return;
+        }
+        el.style.display = "";
+        el.innerHTML = "";
+        const hid = v.rx || [];
+        const add = (t, on, col, fn) => {
+          const b = document.createElement("button");
+          b.className = "chip" + (on ? " on" : "");
+          b.textContent = t;
+          b.style.setProperty("--c", col);
+          b.onclick = fn;
+          el.appendChild(b);
+        };
+        Array.from({ length: S.exams }, (_, i) => i)
+          .filter((i) => !v.exams || v.exams.includes(i))
+          .forEach((i) =>
+            add(
+              "Prüfung " + (i + 1),
+              !hid.includes(i),
+              EC[i % EC.length],
+              () => {
+                v.rx = hid.includes(i)
+                  ? hid.filter((x) => x !== i)
+                  : [...hid, i];
+                upd();
+              },
+            ),
+          );
+        add("Durchschnitt", v.avgShow !== false, "#6b7280", () => {
+          v.avgShow = v.avgShow === false;
+          upd();
+        });
+      }
+
+      /* ---------- Semester / Jahre ---------- */
+      function periodsBar() {
+        $("pbar").innerHTML =
+          R.periods
+            .map((p) => {
+              const on = R.pid === p.id;
+              return (
+                '<div class="vt' +
+                (on ? " on" : "") +
+                '" data-p="' +
+                p.id +
+                '" title="' +
+                esc(p.year || "") +
+                '"><span>' +
+                esc(p.name) +
+                "</span>" +
+                (on
+                  ? '<button class="ib" data-pe="' +
+                    p.id +
+                    '" title="Bearbeiten">⋮</button>' +
+                    (R.periods.length > 1
+                      ? '<button class="ib x" data-pd="' +
+                        p.id +
+                        '" title="Löschen">✕</button>'
+                      : "")
+                  : "") +
+                "</div>"
+              );
+            })
+            .join("") +
+          '<button class="b" id="pAdd" title="Neues Semester">+</button>' +
+          '<div class="vt' +
+          (R.pid === "all" ? " on" : "") +
+          '" data-p="all"><span>Gesamtansicht</span></div><div class="vt' +
+          (R.pid === "years" ? " on" : "") +
+          '" data-p="years"><span>Jahresansicht</span></div>';
+      }
+      function setPeriod(id) {
+        R.pid = id;
+        if (id !== "all" && id !== "years") {
+          R.cur = id;
+          S = R.periods.find((p) => p.id === id);
+        }
+        table();
+        upd();
+      }
+      $("pbar").onclick = (e) => {
+        const b = e.target.closest("button");
+        if (b && b.id === "pAdd") {
+          periodModal(null);
+          return;
+        }
+        if (b && b.dataset.pe) {
+          periodModal(R.periods.find((p) => p.id === b.dataset.pe));
+          return;
+        }
+        if (b && b.dataset.pd) {
+          twoStep(b, "Löschen?", () => {
+            R.periods = R.periods.filter((p) => p.id !== b.dataset.pd);
+            setPeriod(R.periods[0].id);
+          });
+          return;
+        }
+        const t = e.target.closest(".vt");
+        if (t) setPeriod(t.dataset.p);
+      };
+      function periodModal(p) {
+        const years = [
+          ...new Set(R.periods.map((x) => x.year).filter(Boolean)),
+        ];
+        const body =
+          '<label class="fl">Name<input type="text" id="pnN" maxlength="24" value="' +
+          esc(p ? p.name : "Semester " + (R.periods.length + 1)) +
+          '"></label>' +
+          '<label class="fl" style="margin-top:10px">Jahr (z. B. 2026/27)<input type="text" id="pnY" maxlength="16" list="yl" value="' +
+          esc(p ? p.year : S.year || "Jahr 1") +
+          '"></label><datalist id="yl">' +
+          years.map((y) => '<option value="' + esc(y) + '">').join("") +
+          "</datalist>" +
+          '<p class="hint">Semester mit demselben Jahr werden in der Jahresansicht zusammengefasst.</p>' +
+          (p
+            ? ""
+            : '<p><label><input type="checkbox" id="pnC" checked> Fächer und Durchschnitte aus «' +
+              esc(S.name) +
+              "» übernehmen (ohne Noten)</label></p>") +
+          '<p class="bad" id="pnE"></p>';
+        modal(p ? "Semester bearbeiten" : "Semester hinzufügen", body, [
+          { t: "Abbrechen" },
+          {
+            t: p ? "Speichern" : "Hinzufügen",
+            cls: "pri",
+            fn: () => {
+              const name = $("pnN").value.trim(),
+                year = $("pnY").value.trim();
+              if (!name) {
+                $("pnE").textContent = "Bitte einen Namen eingeben.";
+                return false;
+              }
+              if (!year) {
+                $("pnE").textContent = "Bitte ein Jahr eingeben.";
+                return false;
+              }
+              if (p) {
+                p.name = name;
+                p.year = year;
+                upd();
+              } else addPeriod(name, $("pnC").checked, year);
+            },
+          },
+        ]);
+      }
+      function addPeriod(name, copy, year) {
+        const p = blank();
+        p.id = uid();
+        p.name = name;
+        p.year = year || S.year || "Jahr 1";
+        delete p.view;
+        p.selfs = [];
+        p.meta = {};
+        p.locked = false;
+        p.rank = {};
+        if (copy) {
+          const m = {};
+          p.exams = S.exams;
+          p.nc = S.nc;
+          p.subjects = S.subjects.map((s) => {
+            const id = uid();
+            m[s.id] = id;
+            return { id, name: s.name, g: [], color: s.color };
+          });
+          p.avgs = S.avgs.map((a) => ({
+            id: uid(),
+            name: a.name,
+            mp: a.mp,
+            subs: a.subs.map((i) => m[i]).filter(Boolean),
+          }));
+          Object.keys(S.rank || {}).forEach((k) => {
+            if (m[k]) p.rank[m[k]] = [...S.rank[k]];
+          });
+        }
+        p.views = [
+          {
+            id: uid(),
+            name: "Diagramm",
+            type: "line",
+            exams: null,
+            sel: p.subjects.slice(0, 1).map((s) => s.id),
+            multi: false,
+            total: true,
+            limit: true,
+          },
+        ];
+        p.vid = p.views[0].id;
+        R.periods.push(p);
+        setPeriod(p.id);
+      }
+
+      /* ---------- Gesamt- und Jahresansicht ---------- */
+      const withP = (p, fn) => {
+        const o = S;
+        S = p;
+        try {
+          return fn();
+        } finally {
+          S = o;
+        }
+      };
+      const pStats = (p) =>
+        withP(p, () => {
+          const sa = S.subjects.map(avgS).filter((x) => x !== null);
+          return {
+            name: p.name,
+            year: p.year || "Jahr 1",
+            n: S.subjects.length,
+            total: mean(sa),
+            mangel: r1(
+              S.subjects.reduce((q, s) => {
+                const z = zn(s);
+                return q + (z !== null && z < 4 ? 4 - z : 0);
+              }, 0),
+            ),
+            avgs: Object.fromEntries(S.avgs.map((a) => [a.name, avgA(a)])),
+            subj: Object.fromEntries(S.subjects.map((s) => [s.name, avgS(s)])),
+            cols: Object.fromEntries(S.subjects.map((s) => [s.name, s.color])),
+          };
+        });
+      const mean2 = (l) => {
+        const v = l.filter((x) => x != null);
+        return v.length ? mean(v) : null;
+      };
+      function mergeYear(y, g) {
+        const un = (f) => [...new Set(g.flatMap((x) => Object.keys(x[f])))],
+          pick = (f, k) => mean2(g.map((x) => x[f][k]));
+        return {
+          name: y,
+          n: g.length,
+          total: mean2(g.map((x) => x.total)),
+          mangel: r1(g.reduce((q, x) => q + x.mangel, 0)),
+          avgs: Object.fromEntries(un("avgs").map((k) => [k, pick("avgs", k)])),
+          subj: Object.fromEntries(un("subj").map((k) => [k, pick("subj", k)])),
+          cols: Object.assign({}, ...g.map((x) => x.cols).reverse()),
+        };
+      }
+      let achart;
+      function drawAll(mode) {
+        const yrs = mode === "years",
+          raw = R.periods.map(pStats);
+        const st = yrs
+          ? [...new Set(raw.map((x) => x.year))].map((y) =>
+              mergeYear(
+                y,
+                raw.filter((x) => x.year === y),
+              ),
+            )
+          : raw;
+        $("allH").textContent = yrs ? "Jahresansicht" : "Gesamtansicht";
+        const an = [...new Set(st.flatMap((x) => Object.keys(x.avgs)))],
+          sn = [...new Set(st.flatMap((x) => Object.keys(x.subj)))];
+        const keys = [
+          "g",
+          ...an.map((n) => "a:" + n),
+          ...sn.map((n) => "s:" + n),
+        ];
+        if (!R.allSel) R.allSel = ["g", ...an.map((n) => "a:" + n)];
+        R.allSel = R.allSel.filter((k) => keys.includes(k));
+        const col = (k) =>
+          k === "g"
+            ? css("--tx")
+            : k[0] === "a"
+              ? AC[an.indexOf(k.slice(2)) % AC.length]
+              : st.map((x) => x.cols[k.slice(2)]).find(Boolean) || "#2a78d6";
+        const val = (x, k) =>
+          k === "g"
+            ? x.total
+            : k[0] === "a"
+              ? x.avgs[k.slice(2)]
+              : x.subj[k.slice(2)];
+        const nm = (k) => (k === "g" ? "Gesamt (alle Fächer)" : k.slice(2));
+        const ch = $("aChips");
+        ch.innerHTML = "";
+        keys.forEach((k) => {
+          const b = document.createElement("button"),
+            on = R.allSel.includes(k);
+          b.className =
+            "chip" + (on ? " on" : "") + (k[0] !== "s" ? " grp" : "");
+          b.textContent = nm(k);
+          b.style.setProperty("--c", col(k));
+          b.onclick = () => {
+            R.allSel = on ? R.allSel.filter((x) => x !== k) : [...R.allSel, k];
+            upd();
+          };
+          ch.appendChild(b);
+        });
+        const tc = css("--mu"),
+          gc = css("--grid"),
+          labels = st.map((x) => x.name);
+        const ds = R.allSel.map((k) => ({
+          label: nm(k),
+          data: st.map((x) => {
+            const q = val(x, k);
+            return q == null ? null : r1(q);
+          }),
+          borderColor: col(k),
+          backgroundColor: col(k),
+          borderWidth: k === "g" ? 4 : 3,
+          pointRadius: 4,
+          spanGaps: true,
+          tension: 0,
+          borderDash: k[0] === "a" ? [6, 4] : [],
+        }));
+        ds.push({
+          label: "Genügend / ungenügend (4.0)",
+          data: labels.map(() => 4),
+          borderColor: "rgba(229,57,53,.45)",
+          borderWidth: 1.5,
+          borderDash: [8, 6],
+          pointRadius: 0,
+        });
+        if (achart) achart.destroy();
+        achart = new Chart($("cvAll"), {
+          type: "line",
+          data: { labels, datasets: ds },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            scales: {
+              y: {
+                min: 0.5,
+                max: 6.5,
+                ticks: {
+                  stepSize: 0.5,
+                  color: (c) =>
+                    Number.isInteger(c.tick.value) ? tc : tc + "aa",
+                  callback: (q) =>
+                    q < 1 || q > 6
+                      ? ""
+                      : Number.isInteger(q)
+                        ? q
+                        : q.toFixed(1),
+                },
+                grid: {
+                  color: (c) =>
+                    Number.isInteger(c.tick.value) ? gc : gc + "80",
+                },
+              },
+              x: { ticks: { color: tc }, grid: { color: gc } },
+            },
+            plugins: { legend: { labels: { color: tc } } },
+          },
+        });
+        const tt = st.map((x) => x.total).filter((q) => q !== null);
+        $("aSum").innerHTML =
+          tt.length > 1
+            ? "Entwicklung Gesamtdurchschnitt: <b>" +
+              r1(tt[0]).toFixed(1) +
+              " → " +
+              r1(tt[tt.length - 1]).toFixed(1) +
+              '</b> (<b class="' +
+              (tt[tt.length - 1] >= tt[0] ? "ok" : "bad") +
+              '">' +
+              (tt[tt.length - 1] >= tt[0] ? "+" : "") +
+              r1(tt[tt.length - 1] - tt[0]).toFixed(1) +
+              "</b>)"
+            : "Lege mehrere " +
+              (yrs ? "Jahre" : "Semester") +
+              " mit Noten an, um die Entwicklung zu sehen.";
+        $("allTh").innerHTML =
+          '<tr><th class="nm">' +
+          (yrs ? "Jahr" : "Semester") +
+          "</th><th>" +
+          (yrs ? "Semester" : "Fächer") +
+          "</th><th>Ø Gesamt</th>" +
+          an.map((n) => "<th>Ø " + esc(n) + "</th>").join("") +
+          "<th>Mangelpunkte" +
+          (yrs ? " (Summe)" : "") +
+          "</th></tr>";
+        $("allTb").innerHTML = st
+          .map(
+            (x) =>
+              '<tr><td class="nm">' +
+              esc(x.name) +
+              "</td><td>" +
+              x.n +
+              '</td><td class="a ' +
+              cl(x.total) +
+              '">' +
+              f1(x.total) +
+              "</td>" +
+              an
+                .map((n) => {
+                  const q = x.avgs[n];
+                  return (
+                    '<td class="' +
+                    cl(q == null ? null : q) +
+                    '">' +
+                    (q == null ? "–" : f1(q)) +
+                    "</td>"
+                  );
+                })
+                .join("") +
+              '<td class="' +
+              (x.mangel > 0 ? "bad" : "ok") +
+              '">' +
+              x.mangel.toFixed(1) +
+              "</td></tr>",
+          )
+          .join("");
+      }
+
+      /* ---------- Noten sperren und erfassen ---------- */
+      function metaCap(s, i) {
+        if (gv(s, i) === null) return "";
+        const key = s.id + ":" + i,
+          m = S.meta[key],
+          nm = m && m.name ? m.name : "";
+        return (
+          '<small class="tm' +
+          (nm ? "" : " dflt") +
+          '" title="' +
+          esc(
+            nm
+              ? nm + (m.max ? " (" + m.got + "/" + m.max + " P.)" : "")
+              : "Prüfung " + (i + 1),
+          ) +
+          '"><span>' +
+          esc(nm || "Prüfung " + (i + 1)) +
+          '</span><button class="ed" data-ed="' +
+          key +
+          '" title="Namen ändern">✎</button></small>'
+        );
+      }
+      function renameExam(key) {
+        const m = S.meta[key] || {},
+          i = +key.split(":")[1];
+        modal(
+          "Prüfungsname ändern",
+          '<label class="fl">Name der Prüfung<input type="text" id="enN" maxlength="40" value="' +
+            esc(m.name || "") +
+            '" placeholder="Prüfung ' +
+            (i + 1) +
+            '"></label><p class="hint">Leer lassen, um wieder «Prüfung ' +
+            (i + 1) +
+            "» anzuzeigen.</p>",
+          [
+            { t: "Abbrechen" },
+            {
+              t: "Speichern",
+              cls: "pri",
+              fn: () => {
+                S.meta[key] = Object.assign({}, m, {
+                  name: $("enN").value.trim(),
+                });
+                table();
+                upd();
+              },
+            },
+          ],
+        );
+      }
+      function lockUI() {
+        $("lockB").textContent = S.locked ? "🔒 Gesperrt" : "🔓 Entsperrt";
+      }
+      $("lockB").onclick = () => {
+        S.locked = !S.locked;
+        table();
+        upd();
+      };
+      $("capB").onclick = () => captureModal();
+      function captureModal() {
+        if (!S.subjects.length) {
+          modal("Note erfassen", "<p>Lege zuerst ein Fach an.</p>", [
+            { t: "OK" },
+          ]);
+          return;
+        }
+        const body =
+          '<label class="fl2">Fach<select id="cS">' +
+          S.subjects
+            .map(
+              (s) =>
+                '<option value="' + s.id + '">' + esc(s.name) + "</option>",
+            )
+            .join("") +
+          "</select></label>" +
+          '<label class="fl2">Prüfung<select id="cE">' +
+          Array.from(
+            { length: S.exams },
+            (_, i) =>
+              '<option value="' + i + '">Prüfung ' + (i + 1) + "</option>",
+          ).join("") +
+          "</select></label>" +
+          '<label class="fl2">Name (Testthema)<input type="text" id="cN" maxlength="40" placeholder="z. B. Vokabeltest Unit 3"></label>' +
+          '<div class="seg"><label><input type="radio" name="cm" value="n" checked> Note direkt eingeben</label><label><input type="radio" name="cm" value="p"> Aus Punkten berechnen</label></div>' +
+          '<div id="cNote"><label class="fl2">Note (1–6)<input type="number" id="cG" step="0.1" min="1" max="6"></label></div>' +
+          '<div id="cPts" style="display:none"><label class="fl2">Maximale Punktzahl<input type="number" id="cMax" step="0.5" min="0"></label><label class="fl2">Erreichte Punktzahl<input type="number" id="cGot" step="0.5" min="0"></label><p class="hint">Note = erreichte Punkte ÷ maximale Punkte × 5 + 1 → <b id="cPrev">–</b></p></div><p class="bad" id="cErr"></p>';
+        const mode = () =>
+          document.querySelector('input[name="cm"]:checked').value;
+        const pts = () => {
+          const mx = +$("cMax").value;
+          return mx > 0 && $("cGot").value !== ""
+            ? clamp(r1((+$("cGot").value / mx) * 5 + 1), 1, 6)
+            : null;
+        };
+        modal("Note erfassen", body, [
+          { t: "Abbrechen" },
+          {
+            t: "Speichern",
+            cls: "pri",
+            fn: () => {
+              const sid = $("cS").value,
+                ei = +$("cE").value,
+                m = { name: $("cN").value.trim() };
+              let g;
+              if (mode() === "n") {
+                g = $("cG").value === "" ? null : r1($("cG").value);
+                if (g === null || g < 1 || g > 6) {
+                  $("cErr").textContent =
+                    "Bitte eine Note zwischen 1 und 6 eingeben.";
+                  return false;
+                }
+              } else {
+                g = pts();
+                if (g === null) {
+                  $("cErr").textContent =
+                    "Bitte maximale und erreichte Punktzahl eingeben.";
+                  return false;
+                }
+                m.max = +$("cMax").value;
+                m.got = +$("cGot").value;
+              }
+              const s = S.subjects.find((x) => x.id === sid);
+              while (s.g.length <= ei) s.g.push("");
+              s.g[ei] = g;
+              S.meta[sid + ":" + ei] = m;
+              table();
+              upd();
+            },
+          },
+        ]);
+        document.querySelectorAll('input[name="cm"]').forEach(
+          (r) =>
+            (r.onchange = () => {
+              $("cNote").style.display = mode() === "n" ? "" : "none";
+              $("cPts").style.display = mode() === "p" ? "" : "none";
+            }),
+        );
+        const pv = () => {
+          const g = pts();
+          $("cPrev").textContent = g === null ? "–" : g.toFixed(1);
+        };
+        $("cMax").oninput = pv;
+        $("cGot").oninput = pv;
+      }
+
+      /* ---------- Selbstbewertung und Prognose (ein System) ---------- */
+      const TYPES = ["Schreiben", "Reden", "Hören", "Lesen", "Exam.net"]; // Standard: schwerste Prüfung zuerst
+      const DL = ["sehr leicht", "leicht", "mittel", "schwer", "sehr schwer"];
+      const normT = (t) => (t === "Schriftlich" ? "Schreiben" : t); // Schreiben und Schriftlich sind dasselbe
+      const order = (sid) => {
+        const o = ((S.rank || {})[sid] || []).filter((t) => TYPES.includes(t));
+        return [...o, ...TYPES.filter((t) => !o.includes(t))];
+      };
+      const typePrior = (sid, t) => {
+        const o = order(sid),
+          i = o.indexOf(t);
+        return o.length > 1 && i >= 0 ? (i / (o.length - 1) - 0.5) * 0.6 : 0;
+      };
+      const sg = (v) => (v >= 0 ? "+" : "") + v.toFixed(1);
+      const hasV = (v) => v !== "" && v != null;
+      const diffIdx = (r, a) => {
+        const d = ((+r.diff || 3) - 1) / 4,
+          gap = a !== null && hasV(r.exp) ? clamp((r.exp - a) / 2, 0, 1) : 0,
+          t = clamp((+r.hours || 0) / 10, 0, 1);
+        return Math.round(100 * (0.5 * d + 0.3 * gap + 0.2 * t));
+      };
+      const diffLbl = (i) => (i < 35 ? "leicht" : i < 65 ? "mittel" : "schwer");
+      const nextIdx = (s) => {
+        for (let i = 0; i < S.exams; i++) if (gv(s, i) === null) return i;
+        return S.exams;
+      };
+      function selfRows() {
+        return S.selfs
+          .map((r) => {
+            const s = S.subjects.find((x) => x.id === r.sid);
+            if (!s) return null;
+            const g = gv(s, r.exam),
+              a = g !== null ? g : hasV(r.actual) ? +r.actual : null;
+            return {
+              ...r,
+              type: normT(r.type),
+              s,
+              actual: a,
+              idx: diffIdx(r, a),
+            };
+          })
+          .filter(Boolean);
+      }
+      function predict(sid, k, type, hours, diff) {
+        const s = S.subjects.find((x) => x.id === sid);
+        if (!s) return null;
+        const rows = selfRows().filter(
+            (r) => r.actual !== null && (r.sid !== sid || r.exam < k),
+          ),
+          all = rows.map((r) => r.actual);
+        const hist = Array.from({ length: k }, (_, i) => gv(s, i)).filter(
+            (x) => x !== null,
+          ),
+          mine = rows.filter((r) => r.sid === sid).map((r) => r.actual);
+        let base = hist.length ? mean(hist) : mine.length ? mean(mine) : null,
+          fallback = false;
+        if (base === null) {
+          const oa = S.subjects
+            .filter((x) => x.id !== sid)
+            .map(avgS)
+            .filter((x) => x !== null);
+          base = oa.length ? mean(oa) : 4;
+          fallback = true;
+        }
+        const ot = rows.filter((r) => r.type === type).map((r) => r.actual);
+        const te =
+          (ot.length && all.length
+            ? (mean(ot) - mean(all)) * (ot.length / (ot.length + 2))
+            : 0) +
+          typePrior(sid, type) / (1 + ot.length);
+        const hh = rows.map((r) => +r.hours || 0),
+          hm = hh.length ? mean(hh) : hours;
+        let slope = 0.1;
+        if (rows.length >= 3) {
+          const am = mean(all);
+          let cv = 0,
+            vr = 0;
+          rows.forEach((r, i) => {
+            cv += (hh[i] - hm) * (r.actual - am);
+            vr += (hh[i] - hm) ** 2;
+          });
+          if (vr > 0) slope = clamp(cv / vr, 0, 0.3);
+        }
+        const he = clamp(slope * (hours - hm), -1, 1),
+          dm = rows.length ? mean(rows.map((r) => +r.diff || 3)) : 3,
+          de = -0.25 * (diff - dm);
+        const br = rows.filter((r) => hasV(r.exp)).map((r) => r.actual - r.exp),
+          bias = br.length ? 0.5 * mean(br) * (br.length / (br.length + 2)) : 0;
+        const note = r1(clamp(base + te + he + de + bias, 1, 6));
+        const sd =
+            hist.length > 1
+              ? Math.sqrt(mean(hist.map((q) => (q - mean(hist)) ** 2)))
+              : 0.5,
+          half = clamp(
+            (0.25 + sd * 0.7) * (1 + 1 / (rows.length + 1)),
+            0.3,
+            1.5,
+          );
+        return {
+          note,
+          low: r1(clamp(note - half, 1, 6)),
+          high: r1(clamp(note + half, 1, 6)),
+          base,
+          te,
+          he,
+          de,
+          bias,
+          n: rows.length,
+          fallback,
+          need:
+            note < 4
+              ? hours + Math.min(3, (4 - note) / Math.max(slope, 0.2))
+              : null,
+        };
+      }
+      function planFor(s) {
+        const rows = selfRows().filter((r) => r.sid === s.id),
+          all = selfRows(),
+          cnt = {};
+        rows.forEach((r) => (cnt[r.type] = (cnt[r.type] || 0) + 1));
+        const type =
+          Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || "Schreiben";
+        const hours = rows.length
+          ? mean(rows.map((r) => +r.hours || 0))
+          : all.length
+            ? mean(all.map((r) => +r.hours || 0))
+            : 3;
+        return {
+          type,
+          hours: r1(hours),
+          diff: rows.length ? r1(mean(rows.map((r) => +r.diff || 3))) : 3,
+        };
+      }
+      const needTxt = (r, h) =>
+        "plane etwa " + Math.ceil(r.need * 2) / 2 + " h statt " + r1(h) + " h";
+      function resCard(s, p, r) {
+        return (
+          '<div class="res"><div>Erwartete Note für <b>' +
+          esc(s.name) +
+          "</b>, Prüfung " +
+          (p.exam + 1) +
+          " (" +
+          esc(p.type) +
+          ", " +
+          p.hours +
+          " h, Schwierigkeit " +
+          DL[p.diff - 1] +
+          ')</div><b class="big ' +
+          cl(r.note) +
+          '">' +
+          r.note.toFixed(1) +
+          '</b><p>Mögliche Spannweite: tiefste <b class="' +
+          cl(r.low) +
+          '">' +
+          r.low.toFixed(1) +
+          '</b> bis höchste <b class="' +
+          cl(r.high) +
+          '">' +
+          r.high.toFixed(1) +
+          '</b></p><p class="hint">Basis Ø ' +
+          f1(r.base) +
+          " · Prüfungstyp " +
+          sg(r.te) +
+          " · Lernzeit " +
+          sg(r.he) +
+          " · Schwierigkeit " +
+          sg(r.de) +
+          " · Erwartungs-Korrektur " +
+          sg(r.bias) +
+          (r.fallback
+            ? " · Für dieses Fach gibt es noch keine Note, die Schätzung nutzt den Durchschnitt deiner anderen Fächer"
+            : "") +
+          (r.n < 3
+            ? " · Wenig Daten (" +
+              r.n +
+              " Selbstbewertungen), die Schätzung ist ungenau"
+            : "") +
+          "</p>" +
+          (r.note < 4
+            ? '<p class="warn">⚠ Voraussichtlich ungenügend. Du musst dich besser vorbereiten: ' +
+              needTxt(r, p.hours) +
+              " und übe gezielt die schwachen Themen.</p>"
+            : "") +
+          "</div>"
+        );
+      }
+
+      /* Assistent: Fach und Prüfung wählen, fehlende Selbstbewertungen nachtragen, Note berechnen */
+      let W = {};
+      function wizModal() {
+        if (!S.subjects.length) {
+          modal("Prognose", "<p>Lege zuerst ein Fach an.</p>", [{ t: "OK" }]);
+          return;
+        }
+        W = {};
+        const k0 = Math.min(nextIdx(S.subjects[0]), S.exams - 1);
+        modal(
+          "Prognose berechnen",
+          '<label class="fl2">Fach<select id="wS">' +
+            S.subjects
+              .map(
+                (s) =>
+                  '<option value="' + s.id + '">' + esc(s.name) + "</option>",
+              )
+              .join("") +
+            '</select></label><label class="fl2">Prüfung<select id="wE">' +
+            Array.from(
+              { length: S.exams },
+              (_, i) =>
+                '<option value="' +
+                i +
+                '"' +
+                (i === k0 ? " selected" : "") +
+                ">Prüfung " +
+                (i + 1) +
+                "</option>",
+            ).join("") +
+            '</select></label><div id="wB"></div><p class="bad" id="wErr"></p>',
+          [{ t: "Abbrechen" }, { t: "Berechnen", cls: "pri", fn: wizSave }],
+        );
+        const keep = (e) => {
+          if (e.target.id) W[e.target.id] = e.target.value;
+        };
+        $("wB").oninput = keep;
+        $("wB").onchange = keep;
+        $("wS").onchange = () => {
+          W = {};
+          wizRender();
+        };
+        $("wE").onchange = () => {
+          W = {};
+          wizRender();
+        };
+        wizRender();
+      }
+      function wizRender() {
+        const sid = $("wS").value,
+          k = +$("wE").value,
+          s = S.subjects.find((x) => x.id === sid),
+          ord = order(sid);
+        const v = (id, d) => (W[id] !== undefined ? W[id] : d);
+        const tsel = (id, d) =>
+          '<select id="' +
+          id +
+          '">' +
+          ord
+            .map(
+              (t) =>
+                "<option" +
+                (v(id, d) === t ? " selected" : "") +
+                ">" +
+                t +
+                "</option>",
+            )
+            .join("") +
+          "</select>";
+        const dsel = (id, d) =>
+          '<select id="' +
+          id +
+          '">' +
+          DL.map(
+            (t, i) =>
+              '<option value="' +
+              (i + 1) +
+              '"' +
+              (+v(id, d) === i + 1 ? " selected" : "") +
+              ">" +
+              (i + 1) +
+              " – " +
+              t +
+              "</option>",
+          ).join("") +
+          "</select>";
+        let h =
+          '<p class="hint">Prüfungstypen: oben = schwerste Prüfung, unten = einfachste (pro Fach einstellbar).</p>';
+        const miss = [];
+        for (let i = 0; i < k; i++)
+          if (!S.selfs.some((r) => r.sid === sid && r.exam === i)) miss.push(i);
+        if (miss.length)
+          h +=
+            '<p class="hint">Für die früheren Prüfungen fehlt noch die Selbstbewertung. Trage sie nach, daraus wird die Note berechnet.</p>';
+        miss.forEach((i) => {
+          const g = gv(s, i);
+          h +=
+            '<div class="kc"><b>Prüfung ' +
+            (i + 1) +
+            ': Selbstbewertung</b><label class="fl2">Prüfungstyp' +
+            tsel("t" + i, "Schreiben") +
+            '</label><label class="fl2">Wie schwierig war sie?' +
+            dsel("d" + i, 3) +
+            '</label><label class="fl2">Investierte Zeit (Stunden)<input type="number" id="h' +
+            i +
+            '" min="0" step="0.5" value="' +
+            v("h" + i, "") +
+            '"></label><label class="fl2">Erwartete Note<input type="number" id="x' +
+            i +
+            '" min="1" max="6" step="0.1" value="' +
+            v("x" + i, "") +
+            '"></label><label class="fl2">Erhaltene Note' +
+            (g !== null ? " (aus der Tabelle)" : "") +
+            '<input type="number" id="a' +
+            i +
+            '" min="1" max="6" step="0.1" value="' +
+            (g !== null ? g : v("a" + i, "")) +
+            '"' +
+            (g !== null ? " readonly" : "") +
+            "></label></div>";
+        });
+        h +=
+          '<div class="kc"><b>Prüfung ' +
+          (k + 1) +
+          ': Planung</b><label class="fl2">Prüfungstyp' +
+          tsel("pt", "Schreiben") +
+          '</label><label class="fl2">Geplante Lernzeit (Stunden)<input type="number" id="ph" min="0" step="0.5" value="' +
+          v("ph", 2) +
+          '"></label><label class="fl2">Erwartete Schwierigkeit' +
+          dsel("pd", 3) +
+          "</label></div>";
+        $("wB").innerHTML = h;
+      }
+      function wizSave() {
+        const sid = $("wS").value,
+          k = +$("wE").value,
+          err = (m) => {
+            $("wErr").textContent = m;
+            return false;
+          },
+          recs = [];
+        for (let i = 0; i < k; i++) {
+          if (S.selfs.some((r) => r.sid === sid && r.exam === i)) continue;
+          const h = $("h" + i).value,
+            x = $("x" + i).value,
+            a = $("a" + i).value;
+          if (h === "" || +h < 0)
+            return err(
+              "Prüfung " + (i + 1) + ": Bitte die investierte Zeit eingeben.",
+            );
+          if (x === "" || +x < 1 || +x > 6)
+            return err(
+              "Prüfung " +
+                (i + 1) +
+                ": Bitte die erwartete Note (1–6) eingeben.",
+            );
+          if (a === "" || +a < 1 || +a > 6)
+            return err(
+              "Prüfung " +
+                (i + 1) +
+                ": Bitte die erhaltene Note (1–6) eingeben.",
+            );
+          recs.push({
+            id: uid(),
+            sid,
+            exam: i,
+            type: $("t" + i).value,
+            diff: +$("d" + i).value,
+            hours: +h,
+            exp: r1(x),
+            actual: r1(a),
+          });
+        }
+        const ph = $("ph").value;
+        if (ph === "" || +ph < 0)
+          return err("Bitte die geplante Lernzeit eingeben.");
+        S.selfs.push(...recs);
+        S.pred = {
+          sid,
+          exam: k,
+          type: $("pt").value,
+          hours: +ph,
+          diff: +$("pd").value,
+        };
+        if (!S.predSel) S.predSel = [];
+        if (!S.predSel.includes(sid)) S.predSel.push(sid);
+        upd();
+      }
+      $("sfPred").onclick = wizModal;
+
+      /* Diagramm «Erwartete Noten» mit Schaltern */
+      let pchart,
+        rkSid = null;
+      const zone = {
+        id: "zone",
+        beforeDatasetsDraw(c) {
+          const z = c.options.zoneFrom;
+          if (z == null) return;
+          const x = c.scales.x,
+            a = c.chartArea,
+            g = c.ctx,
+            w = x.getPixelForValue(1) - x.getPixelForValue(0),
+            x0 = Math.max(a.left, x.getPixelForValue(z) - w / 2);
+          g.save();
+          g.fillStyle = "rgba(42,120,214,.08)";
+          g.fillRect(x0, a.top, a.right - x0, a.bottom - a.top);
+          g.fillStyle = css("--mu");
+          g.font = "600 12px system-ui,sans-serif";
+          g.fillText("Prognose", x0 + 6, a.top + 14);
+          g.restore();
+        },
+      };
+      const candles = {
+        id: "candles",
+        afterDatasetsDraw(c) {
+          const L = c.options.candles;
+          if (!L || !L.length) return;
+          const x = c.scales.x,
+            y = c.scales.y,
+            g = c.ctx,
+            okc = css("--ok"),
+            badc = css("--bad"),
+            W = 16,
+            STEP = 58,
+            groups = {};
+          L.forEach((d) => (groups[d.k] = groups[d.k] || []).push(d));
+          g.save();
+          g.textBaseline = "middle";
+          Object.values(groups).forEach((arr) =>
+            arr.forEach((d, i) => {
+              const cx =
+                  x.getPixelForValue(d.k) + (i - (arr.length - 1) / 2) * STEP,
+                col = d.note >= 4 ? okc : badc;
+              const yl = y.getPixelForValue(d.low),
+                yh = y.getPixelForValue(d.high),
+                yo = y.getPixelForValue(d.open),
+                yc = y.getPixelForValue(d.note);
+              g.strokeStyle = col;
+              g.lineWidth = 2;
+              g.beginPath();
+              g.moveTo(cx, yh);
+              g.lineTo(cx, yl);
+              g.stroke();
+              g.fillStyle = col;
+              g.fillRect(
+                cx - W / 2,
+                Math.min(yo, yc),
+                W,
+                Math.max(3, Math.abs(yo - yc)),
+              );
+              g.strokeStyle = css("--tx");
+              g.lineWidth = 2;
+              g.beginPath();
+              g.moveTo(cx - W / 2 - 3, yc);
+              g.lineTo(cx + W / 2 + 3, yc);
+              g.stroke();
+              g.textAlign = "center";
+              g.fillStyle = col;
+              g.font = "600 11px system-ui,sans-serif";
+              g.fillText(d.high.toFixed(1), cx, yh - 9);
+              g.fillText(d.low.toFixed(1), cx, yl + 10);
+              g.fillStyle = d.col;
+              g.fillText(d.name, cx, yh - 21);
+              g.textAlign = "left";
+              g.fillStyle = col;
+              g.font = "700 13px system-ui,sans-serif";
+              g.fillText(d.note.toFixed(1), cx + W / 2 + 6, yc);
+            }),
+          );
+          g.restore();
+        },
+      };
+      function selfRender() {
+        const rows = selfRows(),
+          p = S.pred,
+          o = $("sfOut");
+        $("sfList").innerHTML = rows.length
+          ? '<table><thead><tr><th class="nm">Fach</th><th>Prüfung</th><th>Typ</th><th>Schwierigkeit</th><th>Zeit (h)</th><th>Erwartet</th><th>Erhalten</th><th>Programm-Schwierigkeit</th><th></th></tr></thead><tbody>' +
+            rows
+              .map(
+                (r) =>
+                  '<tr><td class="nm">' +
+                  esc(r.s.name) +
+                  "</td><td>" +
+                  (r.exam + 1) +
+                  "</td><td>" +
+                  esc(r.type) +
+                  "</td><td>" +
+                  DL[(+r.diff || 3) - 1] +
+                  "</td><td>" +
+                  (+r.hours || 0) +
+                  "</td><td>" +
+                  (hasV(r.exp) ? f1(+r.exp) : "–") +
+                  '</td><td class="' +
+                  cl(r.actual) +
+                  '">' +
+                  f1(r.actual) +
+                  "</td><td>" +
+                  r.idx +
+                  "/100 · " +
+                  diffLbl(r.idx) +
+                  '</td><td><button class="ib x" data-sd="' +
+                  r.id +
+                  '" title="Löschen">✕</button></td></tr>',
+              )
+              .join("") +
+            "</tbody></table>"
+          : '<p class="hint">Noch keine Selbstbewertung gespeichert.</p>';
+        o.innerHTML = "";
+        if (p) {
+          const s = S.subjects.find((x) => x.id === p.sid);
+          if (s) {
+            const r = predict(p.sid, p.exam, p.type, p.hours, p.diff);
+            if (r) o.innerHTML = resCard(s, p, r);
+          }
+        }
+        const items = S.subjects
+          .filter((s) => avgS(s) !== null)
+          .map((s) => {
+            const k = nextIdx(s),
+              pl = p && p.sid === s.id && p.exam === k ? p : planFor(s);
+            return {
+              s,
+              k,
+              pl,
+              r: predict(s.id, k, pl.type, pl.hours, pl.diff),
+            };
+          });
+        if (!S.predSel) S.predSel = items.slice(0, 3).map((x) => x.s.id);
+        $("swList").innerHTML =
+          items
+            .map(
+              (x) =>
+                '<label class="swt" style="--c:' +
+                x.s.color +
+                '"><input type="checkbox" data-pv="' +
+                x.s.id +
+                '"' +
+                (S.predSel.includes(x.s.id) ? " checked" : "") +
+                '><span class="tr"></span><b>' +
+                esc(x.s.name) +
+                '</b><span class="' +
+                cl(x.r.note) +
+                '">' +
+                x.r.note.toFixed(1) +
+                '</span><small class="hint">' +
+                x.r.low.toFixed(1) +
+                "–" +
+                x.r.high.toFixed(1) +
+                "</small></label>",
+            )
+            .join("") ||
+          '<p class="hint">Sobald Noten eingetragen sind, erscheinen hier die Fächer.</p>';
+        const shown = items.filter((x) => S.predSel.includes(x.s.id)),
+          L = Math.max(S.exams, ...shown.map((x) => x.k + 1), 1),
+          labels = Array.from({ length: L }, (_, i) => "Prüfung " + (i + 1));
+        const ds = shown.map((x) => ({
+          label: x.s.name,
+          data: Array.from({ length: L }, (_, i) =>
+            i < x.k ? gv(x.s, i) : null,
+          ),
+          borderColor: x.s.color,
+          backgroundColor: x.s.color,
+          borderWidth: 3,
+          spanGaps: true,
+          tension: 0,
+          pointRadius: 3,
+          pointBackgroundColor: x.s.color,
+          pointBorderColor: x.s.color,
+        }));
+        const cd = shown.map((x) => {
+          let o = null;
+          for (let i = x.k - 1; i >= 0 && o === null; i--) o = gv(x.s, i);
+          return {
+            k: x.k,
+            name: x.s.name,
+            col: x.s.color,
+            open: o === null ? x.r.base : o,
+            note: x.r.note,
+            low: x.r.low,
+            high: x.r.high,
+          };
+        });
+        ds.push({
+          label: "Genügend / ungenügend (4.0)",
+          data: labels.map(() => 4),
+          borderColor: "rgba(229,57,53,.45)",
+          borderWidth: 1.5,
+          borderDash: [8, 6],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+        });
+        const tc = css("--mu"),
+          gc = css("--grid");
+        if (pchart) pchart.destroy();
+        pchart = new Chart($("cvPred"), {
+          type: "line",
+          plugins: [zone, candles],
+          data: { labels, datasets: ds },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            candles: cd,
+            zoneFrom: shown.length ? Math.min(...shown.map((x) => x.k)) : null,
+            interaction: { mode: "index", intersect: false },
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                min: 0.5,
+                max: 6.5,
+                ticks: {
+                  stepSize: 0.5,
+                  color: (c) =>
+                    Number.isInteger(c.tick.value) ? tc : tc + "aa",
+                  callback: (q) =>
+                    q < 1 || q > 6
+                      ? ""
+                      : Number.isInteger(q)
+                        ? q
+                        : q.toFixed(1),
+                },
+                grid: {
+                  color: (c) =>
+                    Number.isInteger(c.tick.value) ? gc : gc + "80",
+                },
+              },
+              x: { ticks: { color: tc }, grid: { color: gc } },
+            },
+          },
+        });
+        $("predTb").innerHTML = items.length
+          ? '<table><thead><tr><th class="nm">Fach</th><th>Prüfung</th><th>Typ</th><th>Zeit (h)</th><th>Schwierigkeit</th><th>Tiefste</th><th>Erwartete Note</th><th>Höchste</th><th>Hinweis</th></tr></thead><tbody>' +
+            items
+              .map(
+                (x) =>
+                  '<tr><td class="nm">' +
+                  esc(x.s.name) +
+                  "</td><td>" +
+                  (x.k + 1) +
+                  "</td><td>" +
+                  esc(x.pl.type) +
+                  "</td><td>" +
+                  x.pl.hours +
+                  "</td><td>" +
+                  x.pl.diff +
+                  '</td><td class="' +
+                  cl(x.r.low) +
+                  '">' +
+                  x.r.low.toFixed(1) +
+                  '</td><td class="a ' +
+                  cl(x.r.note) +
+                  '">' +
+                  x.r.note.toFixed(1) +
+                  '</td><td class="' +
+                  cl(x.r.high) +
+                  '">' +
+                  x.r.high.toFixed(1) +
+                  "</td><td>" +
+                  (x.r.note < 4
+                    ? '<span class="bad">besser vorbereiten (' +
+                      needTxt(x.r, x.pl.hours) +
+                      ")</span>"
+                    : '<span class="ok">ok</span>') +
+                  "</td></tr>",
+              )
+              .join("") +
+            "</tbody></table>"
+          : "";
+        /* Reihenfolge der Prüfungstypen pro Fach */
+        if (!S.subjects.some((s) => s.id === rkSid))
+          rkSid = S.subjects[0] ? S.subjects[0].id : null;
+        $("rkS").innerHTML = S.subjects
+          .map(
+            (s) =>
+              '<option value="' +
+              s.id +
+              '"' +
+              (s.id === rkSid ? " selected" : "") +
+              ">" +
+              esc(s.name) +
+              "</option>",
+          )
+          .join("");
+        const od = rkSid ? order(rkSid) : [];
+        $("rkList").innerHTML = od
+          .map(
+            (t, i) =>
+              '<div class="rk"><span class="gr" title="Ziehen zum Verschieben">⠿</span><span class="rn">' +
+              (i + 1) +
+              '</span><span style="flex:1">' +
+              esc(t) +
+              (t === "Schreiben"
+                ? ' <small class="hint">(= Schriftlich)</small>'
+                : "") +
+              '</span><small class="hint">' +
+              (i === 0
+                ? "schwerste"
+                : i === od.length - 1
+                  ? "einfachste"
+                  : "") +
+              '</small><button class="ib" data-rk="' +
+              esc(t) +
+              '" title="Reihenfolge ändern">⋮</button></div>',
+          )
+          .join("");
+      }
+      $("swList").onchange = (e) => {
+        const id = e.target.dataset.pv;
+        if (!id) return;
+        S.predSel = e.target.checked
+          ? [...S.predSel, id]
+          : S.predSel.filter((x) => x !== id);
+        upd();
+      };
+      $("sfList").onclick = (e) => {
+        const b = e.target.closest("button[data-sd]");
+        if (b)
+          twoStep(b, "Löschen?", () => {
+            S.selfs = S.selfs.filter((r) => r.id !== b.dataset.sd);
+            upd();
+          });
+      };
+      $("rkS").onchange = (e) => {
+        rkSid = e.target.value;
+        selfRender();
+      };
+      $("rkList").onclick = (e) => {
+        const b = e.target.closest("button[data-rk]");
+        if (!b || !rkSid) return;
+        const t = b.dataset.rk,
+          sid = rkSid;
+        const mv = (d) => {
+          const a = order(sid),
+            i = a.indexOf(t),
+            j = i + d;
+          if (j < 0 || j >= a.length) return;
+          [a[i], a[j]] = [a[j], a[i]];
+          (S.rank = S.rank || {})[sid] = a;
+          upd();
+        };
+        modal(
+          esc(t) + " verschieben",
+          '<p class="hint">Oben = schwerste Prüfung, unten = einfachste. Gilt nur für das gewählte Fach.</p>',
+          [
+            { t: "Schliessen" },
+            { t: "↑ Nach oben", fn: () => mv(-1) },
+            { t: "↓ Nach unten", fn: () => mv(1) },
+          ],
+        );
+      };
+
+      $("rkList").onpointerdown = (e) => {
+        const row = e.target.closest(".rk");
+        if (!row || e.target.closest("button") || !rkSid || e.button > 0)
+          return;
+        const rows = [...$("rkList").querySelectorAll(".rk")],
+          from = rows.indexOf(row),
+          rects = rows.map((r) => r.getBoundingClientRect()),
+          mids = rects.map((r) => r.top + r.height / 2),
+          step =
+            rects.length > 1 ? rects[1].top - rects[0].top : rects[0].height;
+        const y0 = e.clientY;
+        let to = from;
+        row.classList.add("drag");
+        row.setPointerCapture(e.pointerId);
+        const move = (ev) => {
+          row.style.transform = "translateY(" + (ev.clientY - y0) + "px)";
+          to = mids.filter((m, i) => i !== from && m < ev.clientY).length;
+          rows.forEach((r, i) => {
+            if (i === from) return;
+            let o = 0;
+            if (from < to && i > from && i <= to) o = -step;
+            if (from > to && i >= to && i < from) o = step;
+            r.style.transform = o ? "translateY(" + o + "px)" : "";
+          });
+        };
+        const up = () => {
+          row.removeEventListener("pointermove", move);
+          row.removeEventListener("pointerup", up);
+          row.removeEventListener("pointercancel", up);
+          if (to !== from) {
+            const a = order(rkSid),
+              [t] = a.splice(from, 1);
+            a.splice(to, 0, t);
+            (S.rank = S.rank || {})[rkSid] = a;
+          }
+          upd();
+        };
+        row.addEventListener("pointermove", move);
+        row.addEventListener("pointerup", up);
+        row.addEventListener("pointercancel", up);
+        e.preventDefault();
+      };
+
       /* ---------- Start ---------- */
       function upd() {
         sync();
         save();
+        periodsBar();
+        const all = R.pid === "all" || R.pid === "years";
+        $("periodView").style.display = all ? "none" : "";
+        $("allView").style.display = all ? "" : "none";
+        if (all) {
+          drawAll(R.pid);
+          return;
+        }
         views();
         chips();
+        rchips();
         tiles();
         draw();
         calc();
         komp();
+        lockUI();
+        selfRender();
       }
       $("ctype").innerHTML = VT.map(
         ([k, t]) => '<option value="' + k + '">' + t + "</option>",
