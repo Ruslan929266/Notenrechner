@@ -263,4 +263,4 @@ Alle Werte werden im Browser berechnet.
 
 ## Lizenz
 
-Noch keine Lizenz festgelegt. Füge eine `LICENSE`-Datei hinzu (zum Beispiel MIT), wenn andere das Projekt verwenden dürfen.
+Dieses Projekt steht unter der MIT-Lizenz. Du darfst es kostenlos benutzen, kopieren, ändern und weitergeben, auch in eigenen Projekten. Dein Copyright-Hinweis und der Lizenztext müssen dabei erhalten bleiben. Das Projekt wird ohne Garantie bereitgestellt.
