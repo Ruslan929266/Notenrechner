@@ -1671,9 +1671,9 @@
               esc(s.name) +
               '</b> – Zeugnisnote <b class="bad">' +
               zn(s).toFixed(1) +
-              '</b> · Mangel <b class="bad">' +
+              '</b> · Mangelpunkte <b class="bad">' +
               m.toFixed(1) +
-              "</b> Punkte" +
+              "</b>" +
               (sur.length
                 ? "<ul>" +
                   sur
@@ -1702,13 +1702,13 @@
           h +=
             '<p class="verd ' +
             (tp >= tm ? "ok" : "bad") +
-            '">Mangel total ' +
+            '">Mangelpunkte total ' +
             tm.toFixed(1) +
             " · Pluspunkte total " +
             tp.toFixed(1) +
             " → " +
             (tp >= tm
-              ? "alle Mängel können kompensiert werden ✓"
+              ? "alle Mangelpunkte können kompensiert werden ✓"
               : "nicht kompensierbar, es fehlen " +
                 (tm - tp).toFixed(1) +
                 " Punkte ✗") +
@@ -1823,7 +1823,8 @@
             m.textContent = "–";
             m.className = "";
           } else {
-            const p = r1(4 - r1(a));
+            const zz = zn(s),
+              p = r1(4 - zz);
             m.textContent = p.toFixed(1);
             m.className = p > 0 ? "bad" : "ok";
           }
